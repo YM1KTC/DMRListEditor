@@ -119,6 +119,11 @@
           { title: 'Çağrı İşareti', data: 'Callsign' },
           { title: 'İsim', data: 'Name' },
           { title: 'Şehir', data: 'City' },
+          {
+            title: 'İşlem',
+            data: null,
+            orderable: false
+          }
         ];
 
         table = $('#csvTable').DataTable({
@@ -145,13 +150,25 @@
           },
           columnDefs: [
             {
-              targets: '_all',
+              targets: [0,1,2,3,4], // Specify columns that should have input fields
               render: function (data, type, row, meta) {
                 return type === 'display'
                   ? `<input type="text" value="${data}" class="w-full bg-gray-50 border rounded p-1">`
                   : data;
               },
             },
+            {
+              targets: 5, // The magnifier column
+              render: function (data, type, row, meta) {
+                if (type === 'display') {
+                    return `
+                    <a href="https://www.kiyiemniyeti.gov.tr/ehizmetler/telsiz_cagri_isareti_sorgula?CallSign=${row.Callsign}" target="_blank" class="text-blue-500 hover:text-blue-700 mr-2" title="KEGM">🔍</a>
+                    <a href="https://www.qrz.com/db/${row.Callsign}" target="_blank" class="text-blue-500 hover:text-blue-700" title="QRZ.com">📡</a>
+                  `;
+                }
+                return data;
+              },
+            }
           ],
         });
 
