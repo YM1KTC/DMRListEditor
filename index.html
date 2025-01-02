@@ -15,7 +15,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="DMR Contact List Düzenleyici">
     <meta name="twitter:description" content="DMR Contact List Düzenleyici ile DMR kullanıcıları için CSV dosyalarını yükleyin, düzenleyin ve dışa aktarın.">
-    <meta name="twitter:image" content="logo.png">
+    <meta name="twitter:image" content=logo.png">
     <meta name="twitter:site" content="@ym1ktc">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -56,7 +56,7 @@
         id="filterNonAscii"
         class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
       >
-        Bozuk Karakterleri Bul: Aç/Kapat
+        Bozuk Karakterleri Bul: ❌
       </button>
 
       <!-- RadioID.net Butonu -->
@@ -255,6 +255,7 @@
       // ASCII Olmayan Filtreyi Aç/Kapat
       $('#filterNonAscii').on('click', function () {
         filterNonAscii = !filterNonAscii;
+        $(this).html(`Bozuk Karakterleri Bul: ${filterNonAscii ? '❌' : '✅'}`);
         table.draw();
       });
 
