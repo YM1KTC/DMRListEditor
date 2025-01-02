@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DMR Contact List Düzenleyici</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- DataTables CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  </head>
+  <body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-6">
+      <h1 class="text-2xl font-bold mb-4">DMR Contact List Düzenleyici</h1>
+
+      <!-- Dosya Yükleme -->
+      <div class="mb-4">
+        <label for="csvFile" class="block text-lg font-medium">DMR Contact List Yükle:</label>
+        <input type="file" id="csvFile" class="mt-2 p-2 border rounded" />
+      </div>
+
+      <!-- Tablo Konteyneri -->
+      <div class="overflow-x-auto">
+        <table id="csvTable" class="stripe hover w-full"></table>
+      </div>
+
+      <!-- Dışa Aktar Butonu -->
+      <button
+        id="exportCsv"
+        class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Listeyi Kaydet
+      </button>
+
+      <!-- ASCII Olmayan Karakterleri Filtrele Butonu -->
+      <button
+        id="filterNonAscii"
+        class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+      >
+        Bozuk Karakterleri Bul: Aç/Kapat
+      </button>
+
+      <!-- RadioID.net Butonu -->
+      <button
+        id="fetchRadioId"
+        class="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+      >
+        RadioID.net'ten Türkiye Kayıtlarını Al
+      </button>
+    </div>
+
+    <script>
+      let table;
+      let filterNonAscii = false;
+      let lastUsedId = 0; // Track the last used ID
+
+      // DataTable'ı Başlat
+      function initializeTable(data) {
+        // Find the highest No. value in existing data
+        lastUsedId = Math.max(...data.map((row) => parseInt(row.No) || 0));
+
+        const columns = [
+          { title: 'No.', data: 'No', orderable: false },
+          { title: 'DMR Radio ID', data: 'Radio ID' },
+          { title: 'Çağrı İşareti', data: 'Callsign' },
+          { title: 'İsim', data: 'Name' },
+          { title: 'Şehir', data: 'City' },
+        ];
+
+        table = $('#csvTable').DataTable({
+          data: data,
+          columns: columns,
+          paging: true,
+          pageLength: 25,
+          searching: true,
+          autoWidth: false,
+          order: [],
+          language: {
+            lengthMenu: 'Sayfa başına _MENU_ kayıt göster',
+            zeroRecords: 'Kayıt bulunamadı',
+            info: 'Toplam _PAGES_ sayfadan _PAGE_. sayfa gösteriliyor',
+            infoEmpty: 'Kayıt bulunamadı',
+            infoFiltered: '(_MAX_ kayıt içerisinden filtrelendi)',
+            search: 'Ara:',
+            paginate: {
+              first: 'İlk',
+              last: 'Son',
+              next: 'Sonraki',
+              previous: 'Önceki',
+            },
+          },
+          columnDefs: [
+            {
+              targets: '_all',
+              render: function (data, type, row, meta) {
+                return type === 'display'
+                  ? `<input type="text" value="${data}" class="w-full bg-gray-50 border rounded p-1">`
+                  : data;
+              },
+            },
+          ],
+        });
+      }
+
+      // CSV'yi JSON'a Çevir
+      function parseCSV(csv) {
+        const lines = csv.split('\n');
+        const headers = lines[0].split(',').map((header) => header.trim().replace(/\"/g, ''));
+        return lines
+          .slice(1)
+          .filter((line) => line.trim() !== '') // Filter out empty lines
+          .map((line, index) => {
+            const fields = line.split(',');
+            // Check if all fields are empty
+            if (fields.every((field) => !field || field.trim() === '')) {
+              return null;
+            }
+            const obj = headers.reduce(
+              (obj, header, i) => {
+                obj[header] = fields[i]?.replace(/\"/g, '').trim() || '';
+                return obj;
+              },
+              { No: index + 1 }
+            );
+            obj['Call Type'] = 'Private Call';
+            obj['Call Alert'] = 'None';
+            return obj;
+          })
+          .filter((row) => row !== null) // Remove null entries
+          .map((row, index) => ({ ...row, No: index + 1 })); // Reindex
+      }
+
+      // DataTable'ı CSV'ye Dışa Aktar
+      function exportCSV() {
+        const data = table.rows().data().toArray();
+        const headers = [
+          'No.',
+          'Radio ID',
+          'Callsign',
+          'Name',
+          'City',
+          'State',
+          'Country',
+          'Remarks',
+          'Call Type',
+          'Call Alert',
+        ];
+        let csv = headers.map((header) => `"${header}"`).join(',') + '\n';
+
+        data.forEach((row, index) => {
+          csv +=
+            `${index + 1},` +
+            headers
+              .slice(1)
+              .map((h) => `"${row[h] || ''}"`)
+              .join(',') +
+            '\n';
+        });
+
+        // Son satırdaki yeni satır karakterini kaldır
+        csv = csv.trim();
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=us-ascii;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+        const yyyy = today.getFullYear();
+        a.download = `${dd}-${mm}-${yyyy}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
+      // Dosya Yükleme İşlemi
+      $('#csvFile').on('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const csv = e.target.result;
+          const data = parseCSV(csv);
+          if (table) table.destroy();
+          initializeTable(data);
+        };
+        reader.readAsText(file);
+      });
+
+      // CSV Dışa Aktarma Etkinliği
+      $('#exportCsv').on('click', exportCSV);
+
+      // ASCII Olmayan Filtreyi Aç/Kapat
+      $('#filterNonAscii').on('click', function () {
+        filterNonAscii = !filterNonAscii;
+        table.draw();
+      });
+
+      // ASCII Olmayan Karakterler için Özel Arama Fonksiyonu
+      $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        if (!filterNonAscii) return true;
+        return data.some((value) => /[^\x00-\x7F]/.test(value));
+      });
+
+      // RadioID.net'ten veri çek
+      async function fetchTurkishUsers() {
+        try {
+          const response = await fetch('https://radioid.net/static/users.json');
+          const data = await response.json();
+
+          // Türkiye kayıtlarını filtrele
+          const turkishUsers = data.users.filter(
+            (user) => user.country === 'Turkey' || user.country === 'Turkiye'
+          );
+
+          // Mevcut tablo verilerini al
+          const existingData = table.rows().data().toArray();
+          const existingIds = new Set(existingData.map((row) => row['Radio ID']));
+          console.log('Existing IDs:', existingIds);
+          console.log('Turkish Users:', turkishUsers);
+
+          // Yeni kayıtları ekle
+          const newUsers = turkishUsers.filter(
+            (user) => !existingIds.has(user.radio_id.toString())
+          );
+
+          if (newUsers.length === 0) {
+            alert('Eklenecek yeni kayıt bulunamadı.');
+            return;
+          }
+
+          // Create new records with incremental IDs
+          const newRecords = newUsers.map((user) => {
+            lastUsedId++; // Increment the ID counter
+            return {
+              No: lastUsedId,
+              'Radio ID': user.radio_id.toString(),
+              Callsign: user.callsign,
+              Name: user.fname,
+              City: user.city,
+              State: '',
+              Country: '',
+              Remarks: '',
+              'Call Type': 'Private Call',
+              'Call Alert': 'None',
+            };
+          });
+
+          // Tabloyu yeniden oluştur
+          table.destroy();
+          initializeTable([...existingData, ...newRecords]);
+
+          alert(`${newUsers.length} yeni kayıt eklendi.`);
+        } catch (error) {
+          console.error('Veri çekme hatası:', error);
+          alert('Veriler alınırken bir hata oluştu.');
+        }
+      }
+
+      // RadioID.net butonu için olay dinleyici
+      $('#fetchRadioId').on('click', fetchTurkishUsers);
+    </script>
+  </body>
+</html>
