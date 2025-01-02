@@ -79,6 +79,8 @@
       </button>
     </div>
 
+    <div id="alertContainer" class="fixed top-4 right-4 z-50"></div>
+
     <footer class="mt-8 bg-gray-200 p-4 text-center">
       <p class="mb-2">ARC - Amatör Radyocular Derneği</p>
       <p class="mb-2">
@@ -152,8 +154,9 @@
             {
               targets: [0,1,2,3,4], // Specify columns that should have input fields
               render: function (data, type, row, meta) {
+                const bgClass = row.isNew ? 'bg-green-100' : 'bg-gray-50';
                 return type === 'display'
-                  ? `<input type="text" value="${data}" class="w-full bg-gray-50 border rounded p-1">`
+                  ? `<input type="text" value="${data}" class="w-full ${bgClass} border rounded p-1">`
                   : data;
               },
             },
@@ -161,9 +164,12 @@
               targets: 5, // The magnifier column
               render: function (data, type, row, meta) {
                 if (type === 'display') {
-                    return `
-                    <a href="https://www.kiyiemniyeti.gov.tr/ehizmetler/telsiz_cagri_isareti_sorgula?CallSign=${row.Callsign}" target="_blank" class="text-blue-500 hover:text-blue-700 mr-2" title="KEGM">🔍</a>
-                    <a href="https://www.qrz.com/db/${row.Callsign}" target="_blank" class="text-blue-500 hover:text-blue-700" title="QRZ.com">📡</a>
+                  const bgClass = row.isNew ? 'bg-green-100' : '';
+                  return `
+                    <div class="${bgClass} p-1">
+                      <a href="https://www.kiyiemniyeti.gov.tr/ehizmetler/telsiz_cagri_isareti_sorgula?CallSign=${row.Callsign}" target="_blank" class="text-blue-500 hover:text-blue-700 mr-2" title="KEGM">🔍</a>
+                      <a href="https://www.qrz.com/db/${row.Callsign}" target="_blank" class="text-blue-500 hover:text-blue-700" title="QRZ.com">📡</a>
+                    </div>
                   `;
                 }
                 return data;
@@ -251,6 +257,36 @@
         document.body.removeChild(a);
       }
 
+      // Function to show Tailwind alert
+      function showAlert(message, type = 'info') {
+        const alertContainer = document.getElementById('alertContainer');
+        alertContainer.className = 'fixed inset-0 flex items-center justify-center z-50';
+
+        const alert = document.createElement('div');
+        alert.className = `
+          max-w-sm w-full mx-4
+          bg-${type}-100
+          border border-${type}-400
+          text-${type}-700
+          px-4 py-3
+          rounded
+          relative
+        `;
+
+        alert.innerHTML = `
+          <div class="flex justify-between items-start">
+            <span class="block flex-grow">${message}</span>
+            <button class="ml-4 text-${type}-500 hover:text-${type}-700" onclick="this.closest('.fixed').remove()">
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+          </div>
+        `;
+
+        alertContainer.appendChild(alert);
+      }
+
       // Dosya Yükleme İşlemi
       $('#csvFile').on('change', function (e) {
         const file = e.target.files[0];
@@ -267,13 +303,17 @@
       });
 
       // CSV Dışa Aktarma Etkinliği
-      $('#exportCsv').on('click', exportCSV);
+      $('#exportCsv').on('click', function() {
+        exportCSV();
+        showAlert('CSV başarıyla dışa aktarıldı.', 'green');
+      });
 
       // ASCII Olmayan Filtreyi Aç/Kapat
       $('#filterNonAscii').on('click', function () {
         filterNonAscii = !filterNonAscii;
         $(this).html(`Bozuk Karakterleri Bul: ${filterNonAscii ? '✅' : '❌'}`);
         table.draw();
+        showAlert(`Bozuk karakter filtresi ${filterNonAscii ? 'açıldı' : 'kapandı'}.`, 'blue');
       });
 
       // ASCII Olmayan Karakterler için Özel Arama Fonksiyonu
@@ -296,8 +336,6 @@
           // Mevcut tablo verilerini al
           const existingData = table.rows().data().toArray();
           const existingIds = new Set(existingData.map((row) => row['Radio ID']));
-          console.log('Existing IDs:', existingIds);
-          console.log('Turkish Users:', turkishUsers);
 
           // Yeni kayıtları ekle
           const newUsers = turkishUsers.filter(
@@ -305,7 +343,7 @@
           );
 
           if (newUsers.length === 0) {
-            alert('Eklenecek yeni kayıt bulunamadı.');
+            showAlert('Eklenecek yeni kayıt bulunamadı.', 'yellow');
             return;
           }
 
@@ -323,6 +361,7 @@
               Remarks: '',
               'Call Type': 'Private Call',
               'Call Alert': 'None',
+              isNew: true  // Add this property
             };
           });
 
@@ -330,10 +369,11 @@
           table.destroy();
           initializeTable([...existingData, ...newRecords]);
 
-          alert(`${newUsers.length} yeni kayıt eklendi.`);
+          showAlert(`${newUsers.length} yeni kayıt eklendi.\nYeni kayıtlar en sonda yeşil renkte belirtilmiştir.`, 'green');
+
         } catch (error) {
           console.error('Veri çekme hatası:', error);
-          alert('Veriler alınırken bir hata oluştu.');
+          showAlert('Veriler alınırken bir hata oluştu.', 'red');
         }
       }
 
@@ -363,12 +403,13 @@
       function removeSelectedRows() {
         const selectedRows = table.rows('.selected');
         if (selectedRows.count() === 0) {
-          alert('Lütfen silinecek satırı seçin');
+          showAlert('Lütfen silinecek satırı seçin', 'yellow');
           return;
         }
 
         if (confirm(`${selectedRows.count()} satır silinecek. Emin misiniz?`)) {
           selectedRows.remove().draw();
+          showAlert(`${selectedRows.count()} satır silindi.`, 'green');
         }
       }
 
