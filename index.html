@@ -13,7 +13,11 @@
   </head>
   <body class="bg-gray-100 p-6">
     <div class="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-6">
-      <h1 class="text-2xl font-bold mb-4">DMR Contact List Düzenleyici</h1>
+      <div class="pt-20"></div> <!-- Add padding to avoid content being hidden behind the fixed header -->
+      <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-50 p-2 flex items-center justify-between">
+        <img src="logo.png" alt="Logo" class="h-16 w-auto">
+        <h2 class="text-xl font-semibold">DMR Contact List Düzenleyici</h2>
+      </header>
 
       <!-- Dosya Yükleme -->
       <div class="mb-4">
@@ -49,7 +53,32 @@
       >
         RadioID.net'ten Türkiye Kayıtlarını Al
       </button>
+
+      <!-- Satır Ekle/Sil Butonları -->
+      <button
+        id="addRow"
+        class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2"
+      >
+        Yeni Satır Ekle
+      </button>
+      <button id="removeRow" class="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+        Seçili Satırı Sil
+      </button>
     </div>
+
+    <footer class="mt-8 bg-gray-200 p-4 text-center">
+      <p class="mb-2">ARC - Amatör Radyocular Derneği</p>
+      <p class="mb-2">
+        <a href="https://t.me/amator_radyocular_dernegi" target="_blank" class="text-blue-500 hover:underline">Telegram</a> |
+        <a href="https://instagram.com/ya1ktc" target="_blank" class="text-blue-500 hover:underline">Instagram</a> |
+        <a href="https://www.youtube.com/@YM1KTC" target="_blank" class="text-blue-500 hover:underline">YouTube</a> |
+        <a href="https://www.linkedin.com/company/arctr/" target="_blank" class="text-blue-500 hover:underline">LinkedIn</a>
+      </p>
+      <p class="mb-2"></p>
+        <a href="mailto:bilgi@radio.org.tr" class="text-blue-500 hover:underline">bilgi@radio.org.tr</a> |
+        <a href="https://radio.org.tr/" target="_blank" class="text-blue-500 hover:underline">radio.org.tr</a>
+      </p>
+    </footer>
 
     <script>
       let table;
@@ -62,7 +91,17 @@
         lastUsedId = Math.max(...data.map((row) => parseInt(row.No) || 0));
 
         const columns = [
-          { title: 'No.', data: 'No', orderable: false },
+          {
+            title: 'No.',
+            data: 'No',
+            orderable: false,
+            render: function (data, type, row, meta) {
+              if (type === 'display') {
+                return `<input type="checkbox" class="row-select mr-2">${data}`;
+              }
+              return data;
+            },
+          },
           { title: 'DMR Radio ID', data: 'Radio ID' },
           { title: 'Çağrı İşareti', data: 'Callsign' },
           { title: 'İsim', data: 'Name' },
@@ -101,6 +140,12 @@
               },
             },
           ],
+        });
+
+        // Add row selection handling
+        $('#csvTable tbody').on('click', 'input.row-select', function (e) {
+          e.stopPropagation();
+          $(this).closest('tr').toggleClass('selected');
         });
       }
 
@@ -263,6 +308,42 @@
 
       // RadioID.net butonu için olay dinleyici
       $('#fetchRadioId').on('click', fetchTurkishUsers);
+
+      // Add new row function
+      function addNewRow() {
+        lastUsedId++;
+        const newRow = {
+          No: lastUsedId,
+          'Radio ID': '',
+          Callsign: '',
+          Name: '',
+          City: '',
+          State: '',
+          Country: '',
+          Remarks: '',
+          'Call Type': 'Private Call',
+          'Call Alert': 'None',
+        };
+
+        table.row.add(newRow).draw();
+      }
+
+      // Remove selected rows function
+      function removeSelectedRows() {
+        const selectedRows = table.rows('.selected');
+        if (selectedRows.count() === 0) {
+          alert('Lütfen silinecek satırı seçin');
+          return;
+        }
+
+        if (confirm(`${selectedRows.count()} satır silinecek. Emin misiniz?`)) {
+          selectedRows.remove().draw();
+        }
+      }
+
+      // Add event listeners for new buttons
+      $('#addRow').on('click', addNewRow);
+      $('#removeRow').on('click', removeSelectedRows);
     </script>
   </body>
 </html>
