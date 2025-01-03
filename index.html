@@ -244,8 +244,21 @@
       let filterNonAscii = false;
       let lastUsedId = 0; // Track the last used ID
 
+      // Function to trim fields over 16 characters
+      function trimFields(data) {
+        return data.map((row) => {
+          Object.keys(row).forEach((key) => {
+            if (typeof row[key] === 'string' && row[key].length > 16) {
+              row[key] = row[key].substring(0, 16);
+            }
+          });
+          return row;
+        });
+      }
+
       // DataTable'ı Başlat
       function initializeTable(data) {
+        data = trimFields(data); // Trim fields before initializing the table
         // Find the highest No. value in existing data
         lastUsedId = Math.max(...data.map((row) => parseInt(row.No) || 0));
 
@@ -354,7 +367,8 @@
             return obj;
           })
           .filter((row) => row !== null) // Remove null entries
-          .map((row, index) => ({ ...row, No: index + 1 })); // Reindex
+          .map((row, index) => ({ ...row, No: index + 1 })) // Reindex
+          .map((row) => trimFields([row])[0]); // Trim fields
       }
 
       // DataTable'ı CSV'ye Dışa Aktar
@@ -392,23 +406,23 @@
           'Call Type',
           'Call Alert',
         ];
-        let csv = headers.map((header) => `"${header}"`).join(',') + '\n';
+        let csv = headers.map((header) => `"${header}"`).join(',') + '\r\n';
 
         data.forEach((row, index) => {
           csv +=
-            `${index + 1},` +
+            `"${index + 1}",` +
             headers
               .slice(1)
               .map((h) => `"${row[h] || ''}"`)
               .join(',') +
-            '\n';
+            '\r\n';
         });
 
         // Son satırdaki yeni satır karakterini kaldır
         csv = csv.trim();
 
         // Add one blank line at the end
-        csv = csv + '\n';
+        csv = csv + '\r\n';
 
         const blob = new Blob([csv], { type: 'text/csv;charset=us-ascii;' });
         const url = URL.createObjectURL(blob);
@@ -495,22 +509,24 @@
           table.draw(); // Tabloyu yeniden çiz
 
           // Artan ID'leri kullanarak yeni kayıtları oluştur
-          const newRecords = newUsers.map((user) => {
-            lastUsedId++; // Increment the ID counter
-            return {
-              No: lastUsedId,
-              'Radio ID': user.radio_id.toString(),
-              Callsign: user.callsign,
-              Name: user.fname,
-              City: user.city,
-              State: '',
-              Country: '',
-              Remarks: '',
-              'Call Type': 'Private Call',
-              'Call Alert': 'None',
-              isNew: true, // Add this property
-            };
-          });
+          const newRecords = newUsers
+            .map((user) => {
+              lastUsedId++; // Increment the ID counter
+              return {
+                No: lastUsedId,
+                'Radio ID': user.radio_id.toString(),
+                Callsign: user.callsign,
+                Name: user.fname,
+                City: user.city,
+                State: '',
+                Country: '',
+                Remarks: '',
+                'Call Type': 'Private Call',
+                'Call Alert': 'None',
+                isNew: true, // Add this property
+              };
+            })
+            .map((row) => trimFields([row])[0]); // Trim fields
 
           // Tabloyu yeniden oluştur
           table.destroy();
@@ -545,7 +561,7 @@
           'Call Alert': 'None',
         };
 
-        table.row.add(newRow).draw();
+        table.row.add(trimFields([newRow])[0]).draw(); // Trim fields
       }
 
       // Seçili satırları kaldırma işlevi
