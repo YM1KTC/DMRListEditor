@@ -18,7 +18,7 @@ Bu proje, DMR (Digital Mobile Radio) kullanıcıları için bir CSV düzenleyici
 4. Gerekli düzenlemeleri yapın.
 5. Listeyi kaydetmek için "Listeyi Kaydet" butonuna tıklayın.
 
-Proje canlı olarak [burada](https://ym1ktc.github.io/DMRListEditor/) mevcuttur.
+Proje canlı olarak [burada](https://dmr.radio.org.tr) mevcuttur.
 
 ## Bağlantılar
 

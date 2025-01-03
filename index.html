@@ -407,6 +407,9 @@
         // Son satırdaki yeni satır karakterini kaldır
         csv = csv.trim();
 
+        // Add one blank line at the end
+        csv = csv + '\n';
+
         const blob = new Blob([csv], { type: 'text/csv;charset=us-ascii;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
