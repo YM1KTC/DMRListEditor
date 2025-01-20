@@ -638,7 +638,9 @@
       // RadioID.net'ten Türkiye kayıtlarını çekme
       async function fetchTurkishUsers() {
         try {
-          const response = await fetch('https://radioid.net/static/users.json');
+          const response = await fetch(
+            'https://radioid.net/api/dmr/user/?country=Turkiye&country=T%C3%BCrkiye'
+          );
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -650,20 +652,16 @@
             return;
           }
 
-          // Türkiye kayıtlarını filtrele
-          const turkishUsers = data.users.filter(
-            (user) => user.country === 'Turkey' || user.country === 'Turkiye'
-          );
+          // Get Turkish users from API response
+          const turkishUsers = data.results;
 
           // Mevcut tablo verilerini al
           const existingData = table.rows().data().toArray();
           const existingIds = new Set(existingData.map((row) => row['Radio ID']));
 
           // Yeni kayıtları ekle
-          const newUsers = turkishUsers.filter(
-            (user) => !existingIds.has(user.radio_id.toString())
-          );
-          console.log(newUsers.length);
+          const newUsers = turkishUsers.filter((user) => !existingIds.has(user.id.toString()));
+
           if (newUsers.length === 0) {
             showAlert('Eklenecek yeni kayıt bulunamadı.', 'warning');
             return;
@@ -676,13 +674,13 @@
               lastUsedId++; // Increment the ID counter
               return {
                 No: lastUsedId,
-                'Radio ID': user.radio_id.toString(),
+                'Radio ID': user.id.toString(),
                 Callsign: user.callsign,
                 Name: user.fname,
-                City: user.city,
-                State: '',
+                City: user.city || '',
+                State: user.state || '',
                 Country: '',
-                Remarks: '',
+                Remarks: user.remarks || '',
                 'Call Type': 'Private Call',
                 'Call Alert': 'None',
                 isNew: true, // Add this property
