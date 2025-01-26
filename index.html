@@ -173,6 +173,14 @@
           Listeyi Kaydet (TYT)
         </button>
 
+        <!-- Add new TYT without GPS Export Button -->
+        <button
+          id="exportTytNoGpsCsv"
+          class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-lg shadow-md hover:from-purple-600 hover:to-purple-700 transition-all duration-200"
+        >
+          Listeyi Kaydet (TYT GPSsiz)
+        </button>
+
         <!-- ASCII Olmayan Karakterleri Filtrele Butonu -->
         <button
           id="filterNonAscii"
@@ -560,7 +568,7 @@
         const dd = String(today.getDate()).padStart(2, '0');
         const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
         const yyyy = today.getFullYear();
-        a.download = `${dd}-${mm}-${yyyy}.csv`;
+        a.download = `Anytone-${dd}-${mm}-${yyyy}.csv`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -597,6 +605,48 @@
         showAlert('TYT formatındaki CSV başarıyla dışa aktarıldı.', 'success');
       }
 
+      // Add TYT No GPS Export Function
+      function exportTYTNoGPSCSV() {
+        const data = table
+          .rows()
+          .data()
+          .toArray()
+          .map((row, index) => {
+            const rowElement = table.row(index).node();
+            const inputs = rowElement.querySelectorAll('input[type="text"]');
+            return {
+              RadioID: inputs[0].value,
+              CallSign: inputs[1].value,
+              Name: inputs[2].value,
+              NickName: inputs[1].value, // Using Callsign as NickName
+              City: inputs[3].value,
+              State: '',
+              Country: '',
+            };
+          });
+
+        const headers = ['RadioID', 'CallSign', 'Name', 'NickName', 'City', 'State', 'Country'];
+        let csv = headers.join(',') + '\r\n';
+
+        data.forEach((row) => {
+          csv += headers.map((header) => `${row[header] || ''}`).join(',') + '\r\n';
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=us-ascii;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const yyyy = today.getFullYear();
+        a.download = `TYT-NoGPS-${dd}-${mm}-${yyyy}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showAlert('TYT GPSsiz formatındaki CSV başarıyla dışa aktarıldı.', 'success');
+      }
+
       // Dosya Yükleme İşlemi
       $('#csvFile').on('change', function (e) {
         const file = e.target.files[0];
@@ -620,6 +670,9 @@
 
       // Add TYT Export Button Event Listener
       $('#exportTytCsv').on('click', exportTYTCSV);
+
+      // Add event listener for new TYT No GPS Export button
+      $('#exportTytNoGpsCsv').on('click', exportTYTNoGPSCSV);
 
       // ASCII Olmayan Filtreyi Aç/Kapat
       $('#filterNonAscii').on('click', function () {
