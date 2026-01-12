@@ -39,23 +39,22 @@
       @apply text-sm text-slate-600 font-medium;
     }
 
-    /* Enhanced Popup Dialog Styles */
+    /* Popup Dialog Styles */
     .popup-dialog {
       display: none;
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
+      background: white;
       padding: 0;
-      border-radius: 24px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgb(226, 232, 240);
       z-index: 1000;
-      max-width: 1200px;
-      width: 95%;
-      max-height: 90vh;
+      max-width: 900px;
+      width: 90%;
+      max-height: 85vh;
       overflow-y: auto;
     }
 
@@ -66,10 +65,9 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.4);
       z-index: 999;
-      animation: fadeIn 0.3s ease-out;
+      animation: fadeIn 0.15s ease-out;
     }
 
     @keyframes fadeIn {
@@ -84,145 +82,136 @@
 
     .popup-close {
       position: absolute;
-      right: 20px;
-      top: 20px;
+      right: 14px;
+      top: 14px;
       cursor: pointer;
-      font-size: 28px;
-      color: #64748b;
+      font-size: 20px;
+      color: #94a3b8;
       z-index: 1001;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255, 255, 255, 0.9);
-      transition: all 0.2s ease;
+      background: white;
+      transition: all 0.15s ease;
     }
 
     .popup-close:hover {
-      background: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
-      transform: scale(1.1);
+      background: #f1f5f9;
+      color: #64748b;
     }
 
     .popup-content {
-      padding: 32px;
-      padding-top: 40px;
+      padding: 20px;
+      padding-top: 24px;
     }
 
     .popup-photo {
-      max-width: 250px;
+      max-width: 200px;
       height: auto;
-      margin: 15px 0;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.3);
+      margin: 10px 0;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
 
-<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen">
+<body class="bg-slate-50 min-h-screen">
   <!-- Add alert container div at the top level -->
   <div id="alertContainer"
     class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 flex flex-col gap-2"></div>
 
-  <!-- Enhanced Header -->
-  <header class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-slate-200/50 shadow-lg z-50">
+  <!-- Header -->
+  <header class="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50">
     <div class="max-w-7xl mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <img src="logo.png" alt="Logo" class="h-12 w-auto" />
+          <img src="logo.png" alt="Logo" class="h-11 w-auto" />
           <div>
-            <h1
-              class="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+            <h1 class="text-2xl font-semibold tracking-tight text-slate-900">
               DMR Contact List Düzenleyici
             </h1>
-            <p class="text-sm text-slate-600 mt-1">ARC - Amatör Radyocular Derneği</p>
+            <p class="text-sm text-slate-500 mt-0.5">ARC - Amatör Radyocular Derneği</p>
           </div>
         </div>
-        <div class="hidden md:flex items-center space-x-2">
-          <div
-            class="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs rounded-full font-medium">
+        <div class="hidden md:flex items-center">
+          <span class="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-md">
             v2.0
-          </div>
+          </span>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Container -->
-  <div class="pt-24 pb-8 px-6">
-    <div class="max-w-7xl mx-auto space-y-6">
+  <!-- Main Content -->
+  <div class="pt-24 pb-12 px-6">
+    <div class="max-w-7xl mx-auto space-y-5">
 
       <!-- File Upload Card -->
-      <div
-        class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-8 hover:shadow-2xl transition-all duration-300">
-        <div class="flex items-center space-x-3 mb-6">
-          <div class="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl text-white">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-xl border border-slate-200 p-6">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="p-2.5 bg-slate-100 rounded-lg text-slate-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
           </div>
           <div>
-            <h3 class="text-xl font-semibold text-slate-800">DMR Contact List Yükle</h3>
-            <p class="text-sm text-slate-600">CSV formatındaki dosyanızı seçin</p>
+            <h3 class="text-lg font-semibold text-slate-900">DMR Contact List Yükle</h3>
+            <p class="text-sm text-slate-500">CSV formatındaki dosyanızı seçin</p>
           </div>
         </div>
         <input type="file" id="csvFile"
-          class="block w-full text-slate-600 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-50 file:to-purple-50 file:text-blue-700 hover:file:from-blue-100 hover:file:to-purple-100 transition-all duration-200 border-2 border-dashed border-slate-300 rounded-xl p-4 hover:border-blue-400" />
+          class="block w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 transition-colors duration-150 border border-dashed border-slate-300 rounded-lg p-3 hover:border-slate-400" />
       </div>
 
       <!-- City Filter Card -->
-      <div
-        class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-8 hover:shadow-2xl transition-all duration-300">
-        <div class="flex items-center space-x-3 mb-6">
-          <div class="p-3 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl text-white">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-xl border border-slate-200 p-6">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="p-2.5 bg-slate-100 rounded-lg text-slate-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
             </svg>
           </div>
           <div>
-            <h3 class="text-xl font-semibold text-slate-800">Şehir Filtresi</h3>
-            <p class="text-sm text-slate-600">Belirli bir şehre göre filtreleyin</p>
+            <h3 class="text-lg font-semibold text-slate-900">Şehir Filtresi</h3>
+            <p class="text-sm text-slate-500">Belirli bir şehre göre filtreleyin</p>
           </div>
         </div>
         <select id="cityFilter"
-          class="w-full p-3 border-2 border-slate-200 rounded-xl bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all duration-200">
+          class="w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all duration-150">
           <option value="">Tümü</option>
         </select>
       </div>
 
       <!-- Table Container -->
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 overflow-hidden">
-        <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50">
-          <h3 class="text-xl font-semibold text-slate-800 flex items-center">
-            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100">
+          <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2" />
             </svg>
             DMR Kayıtları Tablosu
           </h3>
         </div>
-        <div class="p-6">
-          <div class="bg-gradient-to-r from-slate-50/50 to-blue-50/50 rounded-xl p-4 mb-6 backdrop-blur-sm">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-              <div class="flex items-center space-x-4">
-                <div id="csvTable_length" class="flex items-center"></div>
-              </div>
-              <div class="flex items-center space-x-4">
-                <div id="csvTable_filter" class="flex items-center"></div>
-              </div>
+        <div class="p-5">
+          <div class="bg-slate-50 rounded-lg p-3 mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div id="csvTable_length" class="flex items-center"></div>
+              <div id="csvTable_filter" class="flex items-center"></div>
             </div>
           </div>
 
-          <div class="overflow-x-auto rounded-xl shadow-inner">
+          <div class="overflow-x-auto rounded-lg border border-slate-200">
             <table id="csvTable" class="stripe hover w-full"></table>
           </div>
 
-          <div class="bg-gradient-to-r from-slate-50/50 to-blue-50/50 rounded-xl p-4 mt-6 backdrop-blur-sm">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+          <div class="bg-slate-50 rounded-lg p-3 mt-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div id="csvTable_info" class="flex items-center"></div>
               <div id="csvTable_paginate" class="flex items-center"></div>
             </div>
@@ -230,179 +219,162 @@
         </div>
       </div>
 
-      <!-- Action Buttons Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        <!-- Export Buttons -->
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Export Section -->
         <div class="col-span-full">
-          <h4 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            </svg>
-            Dışa Aktarma İşlemleri
+          <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wide mb-3">
+            Dışa Aktarma
           </h4>
         </div>
 
         <button id="exportCsv"
-          class="group bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-700 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="bg-slate-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors duration-150 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
           </svg>
-          <span class="font-semibold">Anytone CSV</span>
+          Anytone CSV
         </button>
 
         <button id="exportTytCsv"
-          class="group bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-4 rounded-xl shadow-lg hover:from-indigo-600 hover:to-indigo-700 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="bg-slate-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors duration-150 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
           </svg>
-          <span class="font-semibold">TYT CSV</span>
+          TYT CSV
         </button>
 
         <button id="exportTytNoGpsCsv"
-          class="group bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-4 rounded-xl shadow-lg hover:from-purple-600 hover:to-purple-700 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="bg-slate-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors duration-150 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
           </svg>
-          <span class="font-semibold">TYT No GPS</span>
+          TYT No GPS
         </button>
 
         <!-- Tools Section -->
         <div class="col-span-full mt-6">
-          <h4 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Araçlar ve Filtreler
+          <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wide mb-3">
+            Araçlar
           </h4>
         </div>
 
         <button id="filterNonAscii"
-          class="group bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4 rounded-xl shadow-lg hover:from-orange-600 hover:to-orange-700 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all duration-150 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
           </svg>
-          <span class="font-semibold">Bozuk Karakter ❌</span>
+          Bozuk Karakter
         </button>
 
         <button id="fetchRadioId"
-          class="group bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-4 rounded-xl shadow-lg hover:from-teal-600 hover:to-teal-700 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all duration-150 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4" />
           </svg>
-          <span class="font-semibold">RadioID.net</span>
+          RadioID.net
         </button>
 
         <!-- Edit Section -->
         <div class="col-span-full mt-6">
-          <h4 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            Düzenleme İşlemleri
+          <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wide mb-3">
+            Düzenleme
           </h4>
         </div>
 
         <button id="addRow"
-          class="group bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-xl shadow-lg hover:from-green-600 hover:to-green-700 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all duration-150 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          <span class="font-semibold">Yeni Satır Ekle</span>
+          Yeni Satır
         </button>
 
         <button id="removeRow"
-          class="group bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl shadow-lg hover:from-red-600 hover:to-red-700 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="bg-red-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors duration-150 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
-          <span class="font-semibold">Seçili Satırı Sil</span>
+          Satır Sil
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Enhanced Footer -->
-  <footer class="mt-12 mx-6">
-    <div
-      class="max-w-7xl mx-auto bg-white/80 backdrop-blur-sm shadow-2xl rounded-2xl border border-slate-200/50 overflow-hidden">
-      <div class="bg-gradient-to-r from-blue-50 via-purple-50 to-indigo-50 p-8">
+  <!-- Footer -->
+  <footer class="mt-8 mx-6">
+    <div class="max-w-7xl mx-auto bg-slate-900 rounded-xl overflow-hidden">
+      <div class="px-6 py-10">
         <div class="text-center">
-          <h3
-            class="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-6">
+          <h3 class="text-xl font-semibold text-white mb-6">
             ARC - Amatör Radyocular Derneği
           </h3>
 
           <!-- Social Links -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
             <a href="https://t.me/amator_radyocular_dernegi" target="_blank"
-              class="group flex items-center justify-center space-x-2 bg-white/70 hover:bg-blue-50 p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <svg class="w-5 h-5 text-blue-500 group-hover:text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+              class="group flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 p-3 rounded-lg transition-colors duration-150">
+              <svg class="w-5 h-5 text-slate-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 6.728-.896 6.728-.896 6.728-.896 6.728-.896 6.728s-.239 1.987-.239 1.987c-.05.226-.162.332-.332.332-.128 0-.266-.05-.402-.154l-3.402-2.604c-.896-.686-1.653-1.234-2.383-1.653-.226-.129-.402-.315-.402-.587 0-.218.129-.402.315-.508l7.512-6.728c.182-.162.315-.402.315-.651 0-.332-.236-.543-.543-.543-.195 0-.402.089-.573.226L8.427 11.46c-.896.665-1.718 1.266-2.604 1.931-.154.115-.332.182-.520.182-.402 0-.762-.226-.982-.573L2.593 9.867c-.182-.288-.226-.65-.066-.975.162-.332.520-.573.896-.573h14.374c.658 0 1.195.537 1.195 1.195-.001.233-.066.448-.182.646z" />
               </svg>
-              <span class="font-medium text-slate-700 group-hover:text-blue-600">Telegram</span>
+              <span class="text-sm font-medium text-slate-300 group-hover:text-white">Telegram</span>
             </a>
 
             <a href="https://instagram.com/ym1ktc" target="_blank"
-              class="group flex items-center justify-center space-x-2 bg-white/70 hover:bg-pink-50 p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <svg class="w-5 h-5 text-pink-500 group-hover:text-pink-600" fill="currentColor" viewBox="0 0 24 24">
+              class="group flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 p-3 rounded-lg transition-colors duration-150">
+              <svg class="w-5 h-5 text-slate-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
               </svg>
-              <span class="font-medium text-slate-700 group-hover:text-pink-600">Instagram</span>
+              <span class="text-sm font-medium text-slate-300 group-hover:text-white">Instagram</span>
             </a>
 
             <a href="https://www.youtube.com/@YM1KTC" target="_blank"
-              class="group flex items-center justify-center space-x-2 bg-white/70 hover:bg-red-50 p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <svg class="w-5 h-5 text-red-500 group-hover:text-red-600" fill="currentColor" viewBox="0 0 24 24">
+              class="group flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 p-3 rounded-lg transition-colors duration-150">
+              <svg class="w-5 h-5 text-slate-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
               </svg>
-              <span class="font-medium text-slate-700 group-hover:text-red-600">YouTube</span>
+              <span class="text-sm font-medium text-slate-300 group-hover:text-white">YouTube</span>
             </a>
 
             <a href="https://www.linkedin.com/company/arctr/" target="_blank"
-              class="group flex items-center justify-center space-x-2 bg-white/70 hover:bg-blue-50 p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <svg class="w-5 h-5 text-blue-600 group-hover:text-blue-700" fill="currentColor" viewBox="0 0 24 24">
+              class="group flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 p-3 rounded-lg transition-colors duration-150">
+              <svg class="w-5 h-5 text-slate-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
               </svg>
-              <span class="font-medium text-slate-700 group-hover:text-blue-600">LinkedIn</span>
+              <span class="text-sm font-medium text-slate-300 group-hover:text-white">LinkedIn</span>
             </a>
           </div>
 
           <!-- Contact Info -->
-          <div
-            class="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-8 text-slate-600">
+          <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-slate-400">
             <a href="mailto:bilgi@radio.org.tr"
-              class="flex items-center space-x-2 hover:text-blue-600 transition-colors font-medium">
+              class="flex items-center gap-2 hover:text-white transition-colors text-sm">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <span>bilgi@radio.org.tr</span>
+              bilgi@radio.org.tr
             </a>
 
-            <div class="hidden md:block w-px h-4 bg-slate-300"></div>
+            <div class="hidden md:block w-px h-4 bg-slate-700"></div>
 
             <a href="https://radio.org.tr/" target="_blank"
-              class="flex items-center space-x-2 hover:text-blue-600 transition-colors font-medium">
+              class="flex items-center gap-2 hover:text-white transition-colors text-sm">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
               </svg>
-              <span>radio.org.tr</span>
+              radio.org.tr
             </a>
           </div>
         </div>
@@ -410,13 +382,13 @@
     </div>
   </footer>
 
-  <!-- Enhanced Popup Dialog -->
+  <!-- Popup Dialog -->
   <div class="popup-overlay" id="popupOverlay"></div>
   <div class="popup-dialog" id="callsignDialog">
     <span class="popup-close" onclick="closePopup()">&times;</span>
     <div class="popup-content">
-      <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
-        <svg class="w-7 h-7 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+        <svg class="w-5 h-5 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
@@ -987,47 +959,47 @@
 
         // Combine and display the data
         content.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="bg-blue-50 p-4 rounded-lg h-full">
-                <h4 class="text-lg font-bold mb-3">🇹🇷 TACALLBOOK Bilgileri</h4>
-                <div class="grid grid-cols-2 gap-2">
-                  <div class="font-bold">Çağrı İşareti:</div><div>${tacallbookData.isaret || '-'
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-slate-50 p-4 rounded-lg h-full">
+                <h4 class="text-sm font-semibold text-slate-900 mb-3">🇹🇷 TACALLBOOK Bilgileri</h4>
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
+                  <div class="font-medium text-slate-600">Çağrı İşareti:</div><div class="text-slate-900">${tacallbookData.isaret || '-'
           }</div>
-                  <div class="font-bold">İsim:</div><div>${tacallbookData.isim || '-'}</div>
-                  <div class="font-bold">Adres:</div><div>${tacallbookData.adres || ''} ${tacallbookData.adres2 || ''
+                  <div class="font-medium text-slate-600">İsim:</div><div class="text-slate-900">${tacallbookData.isim || '-'}</div>
+                  <div class="font-medium text-slate-600">Adres:</div><div class="text-slate-900">${tacallbookData.adres || ''} ${tacallbookData.adres2 || ''
           }</div>
                   ${tacallbookData.cep
-            ? `<div class="font-bold">Telefon:</div><div>${tacallbookData.cep}</div>`
+            ? `<div class="font-medium text-slate-600">Telefon:</div><div class="text-slate-900">${tacallbookData.cep}</div>`
             : ''
           }
                   ${tacallbookData.eskiIsaret
-            ? `<div class="font-bold">Eski Çağrı İşareti:</div><div>${tacallbookData.eskiIsaret}</div>`
+            ? `<div class="font-medium text-slate-600">Eski Çağrı İşareti:</div><div class="text-slate-900">${tacallbookData.eskiIsaret}</div>`
             : ''
           }
                 </div>
                 ${tacallbookData.photo
-            ? `<img src="${tacallbookData.photo}" class="popup-photo mt-4 mx-auto" alt="Operator Photo">`
+            ? `<img src="${tacallbookData.photo}" class="popup-photo mt-3 mx-auto" alt="Operator Photo">`
             : ''
           }
               </div>
 
-              <div class="bg-purple-50 p-4 rounded-lg h-full">
-                <h4 class="text-lg font-bold mb-3">🌍 QRZ.com Bilgileri</h4>
-                <div class="grid grid-cols-2 gap-2">
-                  <div class="font-bold">Çağrı İşareti:</div><div>${qrzData.call || '-'}</div>
-                  <div class="font-bold">İsim:</div><div>${qrzData.fname || ''} ${qrzData.name || ''
+              <div class="bg-slate-50 p-4 rounded-lg h-full">
+                <h4 class="text-sm font-semibold text-slate-900 mb-3">🌍 QRZ.com Bilgileri</h4>
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
+                  <div class="font-medium text-slate-600">Çağrı İşareti:</div><div class="text-slate-900">${qrzData.call || '-'}</div>
+                  <div class="font-medium text-slate-600">İsim:</div><div class="text-slate-900">${qrzData.fname || ''} ${qrzData.name || ''
           }</div>
-                  <div class="font-bold">Adres:</div><div>${qrzData.addr1 || ''} ${qrzData.addr2 || ''
+                  <div class="font-medium text-slate-600">Adres:</div><div class="text-slate-900">${qrzData.addr1 || ''} ${qrzData.addr2 || ''
           }</div>
-                  <div class="font-bold">Ülke:</div><div>${qrzData.country || '-'}</div>
-                  <div class="font-bold">Grid:</div><div>${qrzData.grid || '-'}</div>
+                  <div class="font-medium text-slate-600">Ülke:</div><div class="text-slate-900">${qrzData.country || '-'}</div>
+                  <div class="font-medium text-slate-600">Grid:</div><div class="text-slate-900">${qrzData.grid || '-'}</div>
                   ${qrzData.class
-            ? `<div class="font-bold">Lisans:</div><div>${qrzData.class}</div>`
+            ? `<div class="font-medium text-slate-600">Lisans:</div><div class="text-slate-900">${qrzData.class}</div>`
             : ''
           }
                 </div>
                 ${qrzData.image
-            ? `<img src="${qrzData.image}" class="popup-photo mt-4 mx-auto" alt="QRZ Photo">`
+            ? `<img src="${qrzData.image}" class="popup-photo mt-3 mx-auto" alt="QRZ Photo">`
             : ''
           }
               </div>
