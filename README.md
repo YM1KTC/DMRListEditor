@@ -65,4 +65,4 @@ Bu proje [UNLICENSE](UNLICENSE) ile lisanslanmıştır. Kamu malıdır, herhangi
 
 ---
 
-**ARC - Amatör Radyocular Derneği** © 2024
+**ARC - Amatör Radyocular Derneği** © 2026
