@@ -20,8 +20,13 @@
   <meta name="twitter:title" content="DMR Contact List Düzenleyici" />
   <meta name="twitter:description"
     content="DMR Contact List Düzenleyici ile DMR kullanıcıları için CSV dosyalarını yükleyin, düzenleyin ve dışa aktarın." />
-  <meta name="twitter:image" content=logo.png">
+  <meta name="twitter:image" content="logo.png" />
   <meta name="twitter:site" content="@ym1ktc" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- DataTables CSS & JS -->
@@ -29,14 +34,488 @@
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <style>
-    /* Custom control styling */
-    #csvTable_length label,
-    #csvTable_filter label {
-      @apply flex items-center space-x-2 text-sm font-medium text-slate-700;
+    :root {
+      color-scheme: light;
+      --bg: #f7f4ef;
+      --panel: #ffffff;
+      --panel-border: rgba(190, 182, 170, 0.45);
+      --ink: #191611;
+      --muted: #6c645b;
+      --muted-strong: #4b443c;
+      --accent: #0b6b64;
+      --accent-strong: #074b47;
+      --accent-soft: rgba(11, 107, 100, 0.12);
+      --warning: #b45309;
+      --danger: #b91c1c;
+      --shadow: 0 26px 70px rgba(20, 18, 13, 0.12);
+      --shadow-soft: 0 12px 30px rgba(20, 18, 13, 0.08);
     }
 
+    body {
+      font-family: "Sora", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: "Space Grotesk", "Sora", system-ui, sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    .ambient {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(11, 107, 100, 0.14), transparent 45%),
+        radial-gradient(circle at 85% 0%, rgba(180, 83, 9, 0.14), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(11, 107, 100, 0.12), transparent 40%);
+      pointer-events: none;
+    }
+
+    .app-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .hero-card {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(190, 182, 170, 0.45);
+      border-radius: 26px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 3.4vw, 3rem);
+      line-height: 1.05;
+      margin-bottom: 12px;
+    }
+
+    .hero-subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 18px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge {
+      background: rgba(11, 107, 100, 0.12);
+      color: var(--accent-strong);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-weight: 600;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .workflow {
+      display: grid;
+      gap: 14px;
+    }
+
+    .step-card {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(190, 182, 170, 0.4);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow-soft);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .step-index {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(11, 107, 100, 0.12);
+      color: var(--accent-strong);
+      font-weight: 700;
+    }
+
+    .step-label {
+      font-weight: 600;
+    }
+
+    .step-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(190, 182, 170, 0.45);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .panel-title {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .panel-subtitle {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .panel-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .table-panel {
+      background: #fff;
+      border-radius: 24px;
+      border: 1px solid rgba(190, 182, 170, 0.45);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(190, 182, 170, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .table-header h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .table-meta {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .input,
+    .select,
+    .file-input {
+      border-radius: 14px;
+      border: 1px solid rgba(190, 182, 170, 0.6);
+      background: #fff;
+      box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.04);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .input:focus,
+    .select:focus,
+    .file-input:focus {
+      outline: none;
+      border-color: rgba(15, 118, 110, 0.6);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    }
+
+    .file-input {
+      border-style: dashed;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      box-shadow: 0 12px 24px rgba(20, 18, 13, 0.12);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0f766e, #0b5d57);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0b5d57, #0a4b47);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid rgba(190, 182, 170, 0.6);
+      color: var(--muted-strong);
+      box-shadow: 0 10px 20px rgba(20, 18, 13, 0.08);
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(15, 118, 110, 0.4);
+      box-shadow: 0 12px 25px rgba(15, 23, 42, 0.1);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #b91c1c, #991b1b);
+    }
+
+    /* DataTables Base Info */
     #csvTable_info {
-      @apply text-sm text-slate-600 font-medium;
+      font-size: 0.875rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* DataTables Base Input/Select Styling */
+    #csvTable_filter input,
+    #csvTable_length select {
+      border-radius: 999px;
+      border: 1px solid rgba(190, 182, 170, 0.6);
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      background: #fff;
+    }
+
+    #csvTable_filter input:focus,
+    #csvTable_length select:focus {
+      outline: none;
+      border-color: rgba(15, 118, 110, 0.55);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    }
+
+    table.dataTable {
+      border-collapse: collapse !important;
+      font-size: 0.9rem;
+    }
+
+    table.dataTable thead th {
+      background: #f6efe4;
+      color: var(--muted-strong);
+      font-weight: 600;
+      border-bottom: 1px solid rgba(190, 182, 170, 0.5) !important;
+      padding: 12px 16px !important;
+    }
+
+    table.dataTable tbody td {
+      padding: 12px 16px !important;
+      border-bottom: 1px solid rgba(190, 182, 170, 0.3);
+    }
+
+    table.dataTable tbody tr:hover {
+      background: rgba(15, 118, 110, 0.05);
+    }
+
+    table.dataTable tbody tr.selected {
+      background: rgba(15, 118, 110, 0.12);
+    }
+
+    table.dataTable input[type="text"],
+    .table-input {
+      background: #fff;
+      border: 1px solid rgba(190, 182, 170, 0.6);
+      border-radius: 10px;
+      padding: 6px 10px;
+      width: 100%;
+    }
+
+    table.dataTable input[type="text"]:focus {
+      outline: none;
+      border-color: rgba(15, 118, 110, 0.6);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+
+    /* DataTables Pagination Buttons */
+    .dataTables_paginate {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dataTables_paginate .paginate_button {
+      border-radius: 10px;
+      border: 1px solid rgba(190, 182, 170, 0.5) !important;
+      background: #fff !important;
+      color: var(--muted-strong) !important;
+      padding: 7px 13px !important;
+      margin: 0 2px !important;
+      font-weight: 600;
+      font-size: 0.85rem;
+      min-width: 38px;
+      text-align: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .dataTables_paginate .paginate_button.current {
+      background: var(--accent) !important;
+      color: #fff !important;
+      border-color: var(--accent) !important;
+      box-shadow: 0 4px 12px rgba(11, 107, 100, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .dataTables_paginate .paginate_button:hover:not(.current):not(.disabled) {
+      border-color: var(--accent) !important;
+      color: var(--accent) !important;
+      background: rgba(11, 107, 100, 0.05) !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .dataTables_paginate .paginate_button:active:not(.current):not(.disabled) {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .dataTables_paginate .paginate_button.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .dataTables_paginate .paginate_button.ellipsis {
+      border-color: transparent !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* DataTables Length Menu */
+    #csvTable_length {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #csvTable_length label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--muted-strong);
+    }
+
+    #csvTable_length select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c645b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    #csvTable_length select:hover {
+      border-color: rgba(15, 118, 110, 0.4);
+    }
+
+    /* DataTables Filter/Search */
+    #csvTable_filter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #csvTable_filter label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--muted-strong);
+    }
+
+    #csvTable_filter input {
+      transition: all 0.2s ease;
+    }
+
+    #csvTable_filter input:hover {
+      border-color: rgba(15, 118, 110, 0.4);
+    }
+
+    /* DataTables Processing Indicator */
+    table.dataTable.processing {
+      position: relative;
+    }
+
+    table.dataTable.processing::after {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      content: '';
+      display: block;
+      border: 4px solid rgba(11, 107, 100, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      z-index: 10;
+    }
+
+    @keyframes spin {
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    /* DataTables Row Animation */
+    table.dataTable tbody tr {
+      transition: background-color 0.2s ease;
     }
 
     /* Popup Dialog Styles */
@@ -115,200 +594,381 @@
       border-radius: 6px;
       box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     }
+
+    /* Action Buttons in Table */
+    .action-buttons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(190, 182, 170, 0.5);
+      background: #fff;
+      color: var(--muted-strong);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(11, 107, 100, 0.08);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .action-btn.btn-query {
+      color: #6366f1;
+    }
+
+    .action-btn.btn-query:hover {
+      border-color: #6366f1;
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .action-btn.btn-kegm {
+      color: #f59e0b;
+    }
+
+    .action-btn.btn-kegm:hover {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .action-btn.btn-qrz {
+      color: #10b981;
+    }
+
+    .action-btn.btn-qrz:hover {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    table.dataTable tbody tr.row-new {
+      background: rgba(11, 107, 100, 0.12) !important;
+    }
+
+    table.dataTable tbody tr.row-new:hover {
+      background: rgba(11, 107, 100, 0.18) !important;
+    }
+
+    .city-unknown {
+      border-color: rgba(185, 28, 28, 0.6);
+      background: rgba(185, 28, 28, 0.06);
+    }
+
+    .group-row {
+      background: rgba(190, 182, 170, 0.25);
+      color: var(--muted-strong);
+      font-weight: 600;
+      padding: 12px 16px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app-shell {
+        padding: 24px 16px 60px;
+      }
+
+      .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
 
-<body class="bg-slate-50 min-h-screen">
+<body class="min-h-screen">
+  <div class="ambient"></div>
   <!-- Add alert container div at the top level -->
   <div id="alertContainer"
     class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 flex flex-col gap-2"></div>
 
-  <!-- Header -->
-  <header class="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50">
-    <div class="max-w-7xl mx-auto px-6 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <img src="logo.png" alt="Logo" class="h-11 w-auto" />
+  <div class="app-shell">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="flex items-center gap-3 mb-4">
+          <img src="logo.png" alt="Logo" class="h-10 w-auto" />
           <div>
-            <h1 class="text-2xl font-semibold tracking-tight text-slate-900">
-              DMR Contact List Düzenleyici
-            </h1>
-            <p class="text-sm text-slate-500 mt-0.5">ARC - Amatör Radyocular Derneği</p>
+            <div class="text-sm font-semibold text-slate-600">ARC - Amatör Radyocular Derneği</div>
+            <div class="text-xs text-slate-400">DMR Contact List Çalışma Alanı</div>
           </div>
         </div>
-        <div class="hidden md:flex items-center">
-          <span class="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-md">
-            v2.0
-          </span>
+        <h1 class="hero-title">DMR Contact List Düzenleyici</h1>
+        <p class="hero-subtitle">
+          CSV listenizi yükleyin, hızla düzenleyin ve cihazınıza hazır formatlarda dışa aktarın.
+        </p>
+        <div class="hero-badges">
+          <span class="badge">CSV DÜZENLEME</span>
+          <span class="badge">RADIOID SENKRON</span>
+          <span class="badge">HIZLI DIŞA AKTARIM</span>
         </div>
       </div>
-    </div>
-  </header>
 
-  <!-- Main Content -->
-  <div class="pt-24 pb-12 px-6">
-    <div class="max-w-7xl mx-auto space-y-5">
-
-      <!-- File Upload Card -->
-      <div class="bg-white rounded-xl border border-slate-200 p-6">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="p-2.5 bg-slate-100 rounded-lg text-slate-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-          </div>
+      <div class="workflow">
+        <div class="step-card">
+          <div class="step-index">1</div>
           <div>
-            <h3 class="text-lg font-semibold text-slate-900">DMR Contact List Yükle</h3>
-            <p class="text-sm text-slate-500">CSV formatındaki dosyanızı seçin</p>
+            <div class="step-label">Yükle</div>
+            <div class="step-desc">CSV dosyanızı tek hamlede tabloya aktarın.</div>
           </div>
         </div>
-        <input type="file" id="csvFile"
-          class="block w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 transition-colors duration-150 border border-dashed border-slate-300 rounded-lg p-3 hover:border-slate-400" />
-      </div>
-
-      <!-- City Filter Card -->
-      <div class="bg-white rounded-xl border border-slate-200 p-6">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="p-2.5 bg-slate-100 rounded-lg text-slate-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
-            </svg>
-          </div>
+        <div class="step-card">
+          <div class="step-index">2</div>
           <div>
-            <h3 class="text-lg font-semibold text-slate-900">Şehir Filtresi</h3>
-            <p class="text-sm text-slate-500">Belirli bir şehre göre filtreleyin</p>
+            <div class="step-label">Filtrele</div>
+            <div class="step-desc">Şehir ve karakter kontrolleri ile hızlı temizlik.</div>
           </div>
         </div>
-        <select id="cityFilter"
-          class="w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:border-slate-400 focus:ring-2 focus:ring-slate-100 transition-all duration-150">
-          <option value="">Tümü</option>
-        </select>
-      </div>
-
-      <!-- Table Container -->
-      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100">
-          <h3 class="text-lg font-semibold text-slate-900 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2" />
-            </svg>
-            DMR Kayıtları Tablosu
-          </h3>
+        <div class="step-card">
+          <div class="step-index">3</div>
+          <div>
+            <div class="step-label">Düzenle</div>
+            <div class="step-desc">Satırları ekle, güncelle ve seçerek sil.</div>
+          </div>
         </div>
-        <div class="p-5">
-          <div class="bg-slate-50 rounded-lg p-3 mb-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div id="csvTable_length" class="flex items-center"></div>
-              <div id="csvTable_filter" class="flex items-center"></div>
+        <div class="step-card">
+          <div class="step-index">4</div>
+          <div>
+            <div class="step-label">Dışa Aktar</div>
+            <div class="step-desc">Anytone, TYT ve GPSsiz formatları saniyeler içinde indir.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="workspace-grid">
+      <aside class="panel-stack">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="p-2.5 bg-slate-100 rounded-lg text-slate-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </div>
+            <div>
+              <div class="panel-title">Dosya Yükleme</div>
+              <div class="panel-subtitle">CSV formatında dosya seçin.</div>
             </div>
           </div>
+          <input type="file" id="csvFile" accept=".csv"
+            class="file-input block w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 transition-colors duration-150 p-3" />
+        </div>
 
-          <div class="overflow-x-auto rounded-lg border border-slate-200">
-            <table id="csvTable" class="stripe hover w-full"></table>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="p-2.5 bg-slate-100 rounded-lg text-slate-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+              </svg>
+            </div>
+            <div>
+              <div class="panel-title">Şehir Filtresi</div>
+              <div class="panel-subtitle">Belirli bir şehire göre daraltın.</div>
+            </div>
           </div>
+          <select id="cityFilter"
+            class="select w-full px-3 py-2.5 text-sm text-slate-700 transition-all duration-150">
+            <option value="">Tümü</option>
+          </select>
+        </div>
 
-          <div class="bg-slate-50 rounded-lg p-3 mt-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div id="csvTable_info" class="flex items-center"></div>
-              <div id="csvTable_paginate" class="flex items-center"></div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="p-2.5 bg-slate-100 rounded-lg text-slate-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4" />
+              </svg>
+            </div>
+            <div>
+              <div class="panel-title">Araçlar</div>
+              <div class="panel-subtitle">Temizlik ve RadioID senkronu.</div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button id="filterNonAscii" class="btn btn-secondary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+              </svg>
+              Bozuk Karakter
+            </button>
+            <button id="normalizeCities" class="btn btn-secondary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 4v4m0 12v-4m8-4h-4M8 12H4m12.364-6.364L12 10l-4.364-4.364M16.364 16.364 12 14l-4.364 2.364" />
+              </svg>
+              Şehirleri Düzelt
+            </button>
+            <button id="reviewCallsigns" class="btn btn-secondary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Çağrı İşareti İncele
+            </button>
+            <button id="fetchRadioId" class="btn btn-secondary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4" />
+              </svg>
+              RadioID.net
+            </button>
+            <button id="dedupeCallsigns" class="btn btn-secondary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 7h10M7 12h10M7 17h6" />
+              </svg>
+              Mükerrerleri Birleştir
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="p-2.5 bg-slate-100 rounded-lg text-slate-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </div>
+            <div>
+              <div class="panel-title">Düzenleme</div>
+              <div class="panel-subtitle">Yeni kayıt ekleyin veya seçili satırları silin.</div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button id="addRow" class="btn btn-secondary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Yeni Satır
+            </button>
+            <button id="removeRow" class="btn btn-danger w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Satır Sil
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="p-2.5 bg-slate-100 rounded-lg text-slate-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <div class="panel-title">Dışa Aktarma</div>
+              <div class="panel-subtitle">Farklı cihaz formatları için indir.</div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button id="exportCsv" class="btn btn-primary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              </svg>
+              Anytone CSV
+            </button>
+            <button id="exportTytCsv" class="btn btn-primary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              </svg>
+              TYT CSV
+            </button>
+            <button id="exportTytNoGpsCsv" class="btn btn-primary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              </svg>
+              TYT No GPS
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <div class="table-panel">
+          <div class="table-header">
+            <div>
+              <h3>DMR Kayıtları Tablosu</h3>
+              <div class="table-meta">CSV yükledikten sonra filtreleyin ve hızla düzenleyin.</div>
+            </div>
+            <div class="hero-badges">
+              <span class="badge">SÜRÜM 2.0</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <div class="bg-slate-50 rounded-lg p-3 mb-4">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div id="csvTable_length" class="flex items-center"></div>
+                <div id="csvTable_filter" class="flex items-center"></div>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg border border-slate-200">
+              <table id="csvTable" class="stripe hover w-full"></table>
+            </div>
+
+            <div class="bg-slate-50 rounded-lg p-3 mt-4">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div id="csvTable_info" class="flex items-center"></div>
+                <div id="csvTable_paginate" class="flex items-center"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <!-- Export Section -->
-        <div class="col-span-full">
-          <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wide mb-3">
-            Dışa Aktarma
-          </h4>
-        </div>
-
-        <button id="exportCsv"
-          class="bg-slate-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors duration-150 flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          </svg>
-          Anytone CSV
-        </button>
-
-        <button id="exportTytCsv"
-          class="bg-slate-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors duration-150 flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          </svg>
-          TYT CSV
-        </button>
-
-        <button id="exportTytNoGpsCsv"
-          class="bg-slate-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors duration-150 flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          </svg>
-          TYT No GPS
-        </button>
-
-        <!-- Tools Section -->
-        <div class="col-span-full mt-6">
-          <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wide mb-3">
-            Araçlar
-          </h4>
-        </div>
-
-        <button id="filterNonAscii"
-          class="bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all duration-150 flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
-          </svg>
-          Bozuk Karakter
-        </button>
-
-        <button id="fetchRadioId"
-          class="bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all duration-150 flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4" />
-          </svg>
-          RadioID.net
-        </button>
-
-        <!-- Edit Section -->
-        <div class="col-span-full mt-6">
-          <h4 class="text-sm font-medium text-slate-500 uppercase tracking-wide mb-3">
-            Düzenleme
-          </h4>
-        </div>
-
-        <button id="addRow"
-          class="bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all duration-150 flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Yeni Satır
-        </button>
-
-        <button id="removeRow"
-          class="bg-red-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors duration-150 flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-          Satır Sil
-        </button>
-      </div>
+      </section>
     </div>
   </div>
 
   <!-- Footer -->
-  <footer class="mt-8 mx-6">
+  <footer class="mt-12 px-6">
     <div class="max-w-7xl mx-auto bg-slate-900 rounded-xl overflow-hidden">
       <div class="px-6 py-10">
         <div class="text-center">
@@ -398,6 +1058,23 @@
     </div>
   </div>
 
+  <!-- Callsign Review Dialog -->
+  <div class="popup-overlay" id="reviewOverlay"></div>
+  <div class="popup-dialog" id="reviewDialog">
+    <span class="popup-close" onclick="closeReviewPopup()">&times;</span>
+    <div class="popup-content">
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-slate-900">Çağrı İşareti Değişiklikleri</h3>
+        <p class="text-sm text-slate-500">RadioID ile karşılaştırma sonucu önerilen güncellemeler.</p>
+      </div>
+      <div id="reviewContent" class="space-y-3"></div>
+      <div class="mt-4 flex flex-col sm:flex-row gap-2 justify-end">
+        <button class="btn btn-secondary" onclick="closeReviewPopup()">Vazgeç</button>
+        <button id="applyCallsignUpdates" class="btn btn-primary">Seçilenleri Uygula</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Function to create alert container
     function createAlertContainer() {
@@ -452,10 +1129,224 @@
         }
       }, 5000);
     }
+
+    // Progress alert functions for long-running operations
+    let progressAlertCounter = 0;
+
+    function showProgressAlert(message, type = 'info', progress = 0) {
+      const alertContainer = document.getElementById('alertContainer');
+      if (!alertContainer) return;
+
+      const alertId = `progress-${progressAlertCounter++}`;
+      const alert = document.createElement('div');
+      alert.id = alertId;
+      alert.className = `
+          max-w-sm w-full
+          ${type === 'info' ? 'bg-blue-100 border-blue-400 text-blue-700' : ''}
+          ${type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : ''}
+          ${type === 'warning' ? 'bg-yellow-100 border-yellow-400 text-yellow-700' : ''}
+          ${type === 'error' ? 'bg-red-100 border-red-400 text-red-700' : ''}
+          border px-4 py-3 rounded shadow-lg
+        `;
+
+      alert.innerHTML = `
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold">${message}</span>
+              <span class="text-sm font-bold">${progress}%</span>
+            </div>
+            <div class="w-full bg-current bg-opacity-20 rounded-full h-2 overflow-hidden">
+              <div class="h-full bg-current transition-all duration-300 ease-out" style="width: ${progress}%"></div>
+            </div>
+          </div>
+        `;
+
+      alertContainer.appendChild(alert);
+      return alertId;
+    }
+
+    function updateProgressAlert(alertId, message, progress) {
+      const alert = document.getElementById(alertId);
+      if (!alert) return;
+
+      alert.innerHTML = `
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold">${message}</span>
+              <span class="text-sm font-bold">${progress}%</span>
+            </div>
+            <div class="w-full bg-current bg-opacity-20 rounded-full h-2 overflow-hidden">
+              <div class="h-full bg-current transition-all duration-300 ease-out" style="width: ${progress}%"></div>
+            </div>
+          </div>
+        `;
+    }
+
+    function removeProgressAlert(alertId) {
+      const alert = document.getElementById(alertId);
+      if (alert) {
+        alert.remove();
+      }
+    }
     let table;
     let filterNonAscii = false;
     let lastUsedId = 0; // Track the last used ID
     let isGrouped = false; // Track grouping state
+    let selectedCityFilter = '';
+    let pendingCallsignUpdates = [];
+    let pendingCallsignFilterConflicts = false;
+
+    const CITY_ENTRIES = [
+      { id: 15, name: 'BURDUR' },
+      { id: 26, name: 'ESKİŞEHİR' },
+      { id: 18, name: 'ÇANKIRI' },
+      { id: 80, name: 'OSMANİYE' },
+      { id: 41, name: 'KOCAELİ' },
+      { id: 27, name: 'GAZİANTEP' },
+      { id: 31, name: 'HATAY' },
+      { id: 38, name: 'KAYSERİ' },
+      { id: 29, name: 'GÜMÜŞHANE' },
+      { id: 54, name: 'SAKARYA' },
+      { id: 16, name: 'BURSA' },
+      { id: 69, name: 'BAYBURT' },
+      { id: 17, name: 'ÇANAKKALE' },
+      { id: 57, name: 'SİNOP' },
+      { id: 74, name: 'BARTIN' },
+      { id: 503, name: 'MAĞUSA (KIBRIS)' },
+      { id: 33, name: 'MERSİN' },
+      { id: 51, name: 'NİĞDE' },
+      { id: 42, name: 'KONYA' },
+      { id: 60, name: 'TOKAT' },
+      { id: 2, name: 'ADIYAMAN' },
+      { id: 6, name: 'ANKARA' },
+      { id: 66, name: 'YOZGAT' },
+      { id: 52, name: 'ORDU' },
+      { id: 53, name: 'RİZE' },
+      { id: 1, name: 'ADANA' },
+      { id: 40, name: 'KIRŞEHİR' },
+      { id: 76, name: 'IĞDIR' },
+      { id: 45, name: 'MANİSA' },
+      { id: 21, name: 'DİYARBAKIR' },
+      { id: 64, name: 'UŞAK' },
+      { id: 501, name: 'LEFKOŞE (KIBRIS)' },
+      { id: 5, name: 'AMASYA' },
+      { id: 24, name: 'ERZİNCAN' },
+      { id: 32, name: 'ISPARTA' },
+      { id: 502, name: 'GİRNE (KIBRIS)' },
+      { id: 23, name: 'ELAZIĞ' },
+      { id: 78, name: 'KARABÜK' },
+      { id: 30, name: 'HAKKARİ' },
+      { id: 36, name: 'KARS' },
+      { id: 67, name: 'ZONGULDAK' },
+      { id: 68, name: 'AKSARAY' },
+      { id: 44, name: 'MALATYA' },
+      { id: 10, name: 'BALIKESİR' },
+      { id: 20, name: 'DENİZLİ' },
+      { id: 49, name: 'MUŞ' },
+      { id: 73, name: 'ŞIRNAK' },
+      { id: 48, name: 'MUĞLA' },
+      { id: 59, name: 'TEKİRDAĞ' },
+      { id: 39, name: 'KIRKLARELİ' },
+      { id: 56, name: 'SİİRT' },
+      { id: 28, name: 'GİRESUN' },
+      { id: 63, name: 'ŞANLIURFA' },
+      { id: 9, name: 'AYDIN' },
+      { id: 72, name: 'BATMAN' },
+      { id: 13, name: 'BİTLİS' },
+      { id: 3, name: 'AFYONKARAHİSAR' },
+      { id: 8, name: 'ARTVİN' },
+      { id: 4, name: 'AĞRI' },
+      { id: 77, name: 'YALOVA' },
+      { id: 50, name: 'NEVŞEHİR' },
+      { id: 61, name: 'TRABZON' },
+      { id: 58, name: 'SİVAS' },
+      { id: 7, name: 'ANTALYA' },
+      { id: 37, name: 'KASTAMONU' },
+      { id: 47, name: 'MARDİN' },
+      { id: 46, name: 'KAHRAMANMARAŞ' },
+      { id: 25, name: 'ERZURUM' },
+      { id: 75, name: 'ARDAHAN' },
+      { id: 81, name: 'DÜZCE' },
+      { id: 55, name: 'SAMSUN' },
+      { id: 19, name: 'ÇORUM' },
+      { id: 65, name: 'VAN' },
+      { id: 14, name: 'BOLU' },
+      { id: 43, name: 'KÜTAHYA' },
+      { id: 11, name: 'BİLECİK' },
+      { id: 34, name: 'İSTANBUL' },
+      { id: 79, name: 'KİLİS' },
+      { id: 62, name: 'TUNCELİ' },
+      { id: 12, name: 'BİNGÖL' },
+      { id: 22, name: 'EDİRNE' },
+      { id: 71, name: 'KIRIKKALE' },
+      { id: 70, name: 'KARAMAN' },
+      { id: 35, name: 'İZMİR' },
+    ];
+    const CITY_LIST = CITY_ENTRIES.map((entry) => entry.name);
+    const UNKNOWN_CITY = 'Bilinmiyor';
+
+    function simplifyCity(value) {
+      return value
+        .toLocaleUpperCase('tr-TR')
+        .replace(/[ÇĞİÖŞÜ]/g, (ch) => {
+          const map = { Ç: 'C', Ğ: 'G', İ: 'I', Ö: 'O', Ş: 'S', Ü: 'U' };
+          return map[ch] || ch;
+        })
+        .replace(/[^A-Z0-9() ]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function titleCaseTr(value) {
+      const lowered = value.toLocaleLowerCase('tr-TR');
+      return lowered.replace(/(^|\s|-)[a-zA-ZçğıöşüÇĞİÖŞÜ]/g, (match) =>
+        match.toLocaleUpperCase('tr-TR')
+      );
+    }
+
+    const CITY_MAP = new Map(
+      CITY_LIST.map((name) => [simplifyCity(name), titleCaseTr(name)])
+    );
+
+    function normalizeEmpty(value) {
+      if (value === null || value === undefined) return '';
+      const cleaned = String(value).trim();
+      if (!cleaned) return '';
+      const lowered = cleaned.toLowerCase();
+      if (['none', 'null', 'undefined', '-', 'n/a'].includes(lowered)) return '';
+      return cleaned;
+    }
+
+    function normalizeTitle(value) {
+      const cleaned = normalizeEmpty(value);
+      if (!cleaned) return '';
+      return titleCaseTr(cleaned);
+    }
+
+    function normalizeCity(value) {
+      const cleaned = normalizeEmpty(value);
+      if (!cleaned) return UNKNOWN_CITY;
+      const key = simplifyCity(cleaned);
+      return CITY_MAP.get(key) || normalizeTitle(cleaned);
+    }
+
+    function isKnownCity(value) {
+      const cleaned = normalizeEmpty(value);
+      if (!cleaned || cleaned === UNKNOWN_CITY) return true;
+      const key = simplifyCity(cleaned);
+      return CITY_MAP.has(key);
+    }
+
+    function normalizeRow(row) {
+      return {
+        ...row,
+        Callsign: normalizeEmpty(row.Callsign).toUpperCase(),
+        Name: normalizeEmpty(row.Name).replace(/\s+/g, ' ').trim(),
+        City: normalizeCity(row.City),
+        State: normalizeTitle(row.State),
+        Country: normalizeTitle(row.Country),
+      };
+    }
 
     // Function to trim fields over 16 characters
     function trimFields(data) {
@@ -469,6 +1360,26 @@
       });
     }
 
+    function collectTableDataFromInputs() {
+      if (!table) return [];
+      return table
+        .rows()
+        .data()
+        .toArray()
+        .map((row, index) => {
+          const rowElement = table.row(index).node();
+          if (!rowElement) return row;
+          const inputs = rowElement.querySelectorAll('input[type="text"]');
+          return {
+            ...row,
+            'Radio ID': inputs[0]?.value ?? row['Radio ID'],
+            Callsign: inputs[1]?.value ?? row.Callsign,
+            Name: inputs[2]?.value ?? row.Name,
+            City: inputs[3]?.value ?? row.City,
+          };
+        });
+    }
+
     // DataTable'ı Başlat
     function initializeTable(data) {
       data = trimFields(data); // Trim fields before initializing the table
@@ -476,11 +1387,44 @@
       lastUsedId = Math.max(...data.map((row) => parseInt(row.No) || 0));
 
       // Get unique cities and populate filter dropdown
-      const cities = [...new Set(data.map((row) => row.City))].filter((city) => city).sort();
+      const cities = [...new Set(data.map((row) => row.City))]
+        .map((city) => normalizeEmpty(city))
+        .filter((city) => city && city !== UNKNOWN_CITY);
       const cityFilter = document.getElementById('cityFilter');
+      const standardCities = CITY_ENTRIES.filter((entry) => entry.id <= 81).sort(
+        (a, b) => a.id - b.id
+      );
+      const extraCities = CITY_ENTRIES.filter((entry) => entry.id > 81).sort(
+        (a, b) => a.id - b.id
+      );
+      const knownKeys = new Set(CITY_LIST.map((name) => simplifyCity(name)));
+      const otherCities = cities
+        .filter((city) => !knownKeys.has(simplifyCity(city)))
+        .map((city) => normalizeTitle(city))
+        .sort((a, b) => a.localeCompare(b, 'tr-TR'));
+      const standardOptions = standardCities
+        .map((entry) => {
+          const label = `${String(entry.id).padStart(2, '0')}-${titleCaseTr(entry.name)}`;
+          const value = titleCaseTr(entry.name);
+          return `<option value="${value}">${label}</option>`;
+        })
+        .join('');
+      const extraOptions = extraCities
+        .map((entry) => {
+          const label = `${entry.id}-${titleCaseTr(entry.name)}`;
+          const value = titleCaseTr(entry.name);
+          return `<option value="${value}">${label}</option>`;
+        })
+        .join('');
+      const otherOptions = otherCities
+        .map((city) => `<option value="${city}">Diğer - ${city}</option>`)
+        .join('');
       cityFilter.innerHTML =
         '<option value="">Tümü</option>' +
-        cities.map((city) => `<option value="${city}">${city}</option>`).join('');
+        standardOptions +
+        extraOptions +
+        otherOptions +
+        `<option value="${UNKNOWN_CITY}">${UNKNOWN_CITY}</option>`;
 
       const columns = [
         {
@@ -514,16 +1458,27 @@
         autoWidth: false,
         order: [],
         dom: '<"#csvTable_length"l><"#csvTable_filter"f>rt<"#csvTable_info"i><"#csvTable_paginate"p>',
+        initComplete: function () {
+          const filterInput = document.querySelector('#csvTable_filter input');
+          if (filterInput) {
+            filterInput.setAttribute('placeholder', 'Ara...');
+          }
+        },
         rowGroup: {
-          enable: false,
+          enable: isGrouped,
           dataSrc: 'City',
           startRender: function (rows, group) {
             return `<tr class="group">
-                        <td colspan="6" class="bg-gray-200 font-bold px-6 py-2">
+                        <td colspan="6" class="group-row">
                           ${group} (${rows.count()} kayıt)
                         </td>
                       </tr>`;
           },
+        },
+        createdRow: function (row, data, dataIndex) {
+          if (data.isNew) {
+            $(row).addClass('row-new');
+          }
         },
         language: {
           lengthMenu: 'Sayfa başına _MENU_ kayıt göster',
@@ -541,24 +1496,48 @@
         },
         columnDefs: [
           {
-            targets: [0, 1, 2, 3, 4], // Specify columns that should have input fields
+            targets: [0, 1, 2, 3], // Specify columns that should have input fields
             render: function (data, type, row, meta) {
-              const bgClass = row.isNew ? 'bg-green-100' : 'bg-gray-50';
               return type === 'display'
-                ? `<input type="text" value="${data}" class="w-full ${bgClass} border rounded p-1">`
+                ? `<input type="text" value="${data}" class="table-input">`
                 : data;
             },
           },
           {
-            targets: 5, // The magnifier column
+            targets: 4, // City column
+            render: function (data, type, row, meta) {
+              const cityClass = isKnownCity(data) ? '' : 'city-unknown';
+              const title = cityClass ? 'title="Şehir listesinde yok"' : '';
+              return type === 'display'
+                ? `<input type="text" value="${data}" class="table-input ${cityClass}" ${title}>`
+                : data;
+            },
+          },
+          {
+            targets: 5, // The action buttons column
             render: function (data, type, row, meta) {
               if (type === 'display') {
-                const bgClass = row.isNew ? 'bg-green-100' : '';
                 return `
-                    <div class="${bgClass} p-1">
-                      <a href="#" onclick="fetchCallsignDetails('${row.Callsign}')" class="text-blue-500 hover:text-blue-700 mr-2" title="SORGULAMA">👀</a>
-                      <a href="https://www.kiyiemniyeti.gov.tr/ehizmetler/telsiz_cagri_isareti_sorgula?CallSign=${row.Callsign}" target="_blank" class="text-blue-500 hover:text-blue-700 mr-2" title="KEGM">🔍</a>
-                      <a href="https://www.qrz.com/db/${row.Callsign}" target="_blank" class="text-blue-500 hover:text-blue-700" title="QRZ.com">📡</a>
+                    <div class="action-buttons">
+                      <a href="#" onclick="fetchCallsignDetails('${row.Callsign}')" class="action-btn btn-query" title="Sorgula">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </a>
+                      <a href="https://www.kiyiemniyeti.gov.tr/ehizmetler/telsiz_cagri_isareti_sorgula?CallSign=${row.Callsign}" target="_blank" class="action-btn btn-kegm" title="KEGM Sorgula">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="11" cy="11" r="8"/>
+                          <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                      </a>
+                      <a href="https://www.qrz.com/db/${row.Callsign}" target="_blank" class="action-btn btn-qrz" title="QRZ.com">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M4 11a9 9 0 0 1 9 9"/>
+                          <path d="M4 4a16 16 0 0 1 16 16"/>
+                          <circle cx="5" cy="19" r="1"/>
+                        </svg>
+                      </a>
                     </div>
                   `;
               }
@@ -572,8 +1551,8 @@
 
       // Add custom city filtering
       $('#cityFilter').on('change', function () {
-        const selectedCity = $(this).val();
-        table.column(4).search(selectedCity).draw();
+        selectedCityFilter = $(this).val();
+        table.draw();
       });
 
       // Add row selection handling
@@ -600,11 +1579,16 @@
           dataSrc: 'City',
           startRender: function (rows, group) {
             return `<tr class="group">
-                        <td colspan="6" class="bg-gray-200 font-bold px-6 py-2">
+                        <td colspan="6" class="group-row">
                           ${group} (${rows.count()} kayıt)
                         </td>
                       </tr>`;
           },
+        },
+        createdRow: function (row, data, dataIndex) {
+          if (data.isNew) {
+            $(row).addClass('row-new');
+          }
         },
       };
 
@@ -822,34 +1806,70 @@
       return data.some((value) => /[^\x00-\x7F]/.test(value));
     });
 
+    // Şehir filtresi için özel arama
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+      if (!selectedCityFilter) return true;
+      const rowCity = data[4];
+      const normalizedRow = normalizeCity(rowCity);
+      const normalizedSelected =
+        selectedCityFilter === UNKNOWN_CITY
+          ? UNKNOWN_CITY
+          : normalizeCity(selectedCityFilter);
+      return normalizedRow === normalizedSelected;
+    });
+
     // RadioID.net'ten Türkiye kayıtlarını çekme
     async function fetchTurkishUsers() {
+      let progressAlertId = null;
       try {
-        const response = await fetch(
-          'https://radioid.bugra.workers.dev/api/dmr/user/?country=Turkiye&country=T%C3%BCrkiye'
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-
         // Tablonun var olduğundan emin ol
         if (!table) {
           showAlert('Önce bir CSV dosyası yükleyin.', 'warning');
           return;
         }
 
-        // Get Turkish users from API response
-        const turkishUsers = data.results;
+        // Show initial progress alert
+        progressAlertId = showProgressAlert('RadioID.net verileri çekiliyor...', 'info', 0);
+
+        // Fetch all pages
+        let allResults = [];
+        let page = 1;
+        let totalPages = 1;
+
+        do {
+          const response = await fetch(
+            `https://radioid.bugra.workers.dev/api/dmr/user/?country=Turkiye&country=T%C3%BCrkiye&page=${page}`
+          );
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          allResults = allResults.concat(data.results);
+          totalPages = data.pages || 1;
+
+          // Update progress
+          const progress = Math.round((page / totalPages) * 100);
+          updateProgressAlert(progressAlertId, `RadioID.net verileri çekiliyor... (${page}/${totalPages} sayfa)`, progress);
+
+          page++;
+        } while (page <= totalPages);
+
+        // Update to processing stage
+        updateProgressAlert(progressAlertId, 'Veriler işleniyor...', 100);
+
+        const turkishUsers = allResults;
 
         // Mevcut tablo verilerini al
         const existingData = table.rows().data().toArray();
         const existingIds = new Set(existingData.map((row) => row['Radio ID']));
 
         // Yeni kayıtları ekle
-        const newUsers = turkishUsers.filter((user) => !existingIds.has(user.id.toString()));
+        const newUsers = turkishUsers.filter(
+          (user) => !existingIds.has((user.radio_id ?? user.id).toString())
+        );
 
         if (newUsers.length === 0) {
+          removeProgressAlert(progressAlertId);
           showAlert('Eklenecek yeni kayıt bulunamadı.', 'warning');
           return;
         }
@@ -859,19 +1879,19 @@
         const newRecords = newUsers
           .map((user) => {
             lastUsedId++; // Increment the ID counter
-            return {
+            return normalizeRow({
               No: lastUsedId,
-              'Radio ID': user.id.toString(),
+              'Radio ID': (user.radio_id ?? user.id).toString(),
               Callsign: user.callsign,
-              Name: user.fname,
+              Name: user.fname || user.name || '',
               City: user.city || '',
               State: user.state || '',
-              Country: '',
+              Country: user.country || '',
               Remarks: user.remarks || '',
               'Call Type': 'Private Call',
               'Call Alert': 'None',
               isNew: true, // Add this property
-            };
+            });
           })
           .map((row) => trimFields([row])[0]); // Trim fields
 
@@ -879,11 +1899,13 @@
         table.destroy();
         initializeTable([...existingData, ...newRecords]);
 
+        removeProgressAlert(progressAlertId);
         showAlert(
           `${newUsers.length} yeni kayıt eklendi.\nYeni kayıtlar en sonda yeşil renkte belirtilmiştir.`,
           'success'
         );
       } catch (error) {
+        if (progressAlertId) removeProgressAlert(progressAlertId);
         console.error('Veri çekme hatası:', error);
         showAlert('Veriler alınırken bir hata oluştu: ' + error.message, 'error');
       }
@@ -925,9 +1947,88 @@
       }
     }
 
+    function normalizeCitiesInTable() {
+      if (!table) {
+        showAlert('Önce bir CSV dosyası yükleyin.', 'warning');
+        return;
+      }
+      const data = collectTableDataFromInputs();
+      let changes = 0;
+      const normalized = data.map((row) => {
+        const before = row.City;
+        const after = normalizeCity(row.City);
+        if (before !== after) changes++;
+        return { ...row, City: after };
+      });
+      const rebuilt = normalized.map((row, index) => ({ ...row, No: index + 1 }));
+      table.destroy();
+      initializeTable(rebuilt);
+      if (changes > 0) {
+        showAlert(`${changes} şehir adı düzeltildi.`, 'success');
+      } else {
+        showAlert('Şehir adları zaten standart.', 'info');
+      }
+    }
+
+    function mergeDuplicateCallsigns() {
+      if (!table) {
+        showAlert('Önce bir CSV dosyası yükleyin.', 'warning');
+        return;
+      }
+      const data = collectTableDataFromInputs();
+      const mergedData = [];
+      const seen = new Map();
+      let mergedCount = 0;
+      let conflictCount = 0;
+
+      data.forEach((row) => {
+        const callsignKey = normalizeEmpty(row.Callsign).toUpperCase();
+        if (!callsignKey) {
+          mergedData.push(row);
+          return;
+        }
+
+        if (!seen.has(callsignKey)) {
+          row.Callsign = callsignKey;
+          seen.set(callsignKey, row);
+          mergedData.push(row);
+          return;
+        }
+
+        const base = seen.get(callsignKey);
+        const baseId = normalizeEmpty(base['Radio ID']);
+        const incomingId = normalizeEmpty(row['Radio ID']);
+        if (baseId && incomingId && baseId !== incomingId) {
+          conflictCount++;
+        }
+        if (!baseId && incomingId) base['Radio ID'] = incomingId;
+        ['Name', 'City', 'State', 'Country', 'Remarks'].forEach((field) => {
+          if (!normalizeEmpty(base[field]) && normalizeEmpty(row[field])) {
+            base[field] = row[field];
+          }
+        });
+        if (row.isNew) base.isNew = true;
+        mergedCount++;
+      });
+
+      if (mergedCount === 0) {
+        showAlert('Mükerrer kayıt bulunamadı.', 'info');
+        return;
+      }
+
+      const rebuilt = mergedData.map((row, index) => ({ ...normalizeRow(row), No: index + 1 }));
+      table.destroy();
+      initializeTable(rebuilt);
+      const conflictNote =
+        conflictCount > 0 ? ` ${conflictCount} kayıt Radio ID çakışması içeriyor.` : '';
+      showAlert(`${mergedCount} mükerrer kayıt birleştirildi.${conflictNote}`, 'success');
+    }
+
     // Yeni butonlar için olay dinleyicileri ekle
     $('#addRow').on('click', addNewRow);
     $('#removeRow').on('click', removeSelectedRows);
+    $('#normalizeCities').on('click', normalizeCitiesInTable);
+    $('#dedupeCallsigns').on('click', mergeDuplicateCallsigns);
 
     // Add these new functions for popup handling
     function showPopup() {
@@ -938,6 +2039,20 @@
     function closePopup() {
       document.getElementById('popupOverlay').style.display = 'none';
       document.getElementById('callsignDialog').style.display = 'none';
+    }
+
+    function showReviewPopup() {
+      document.getElementById('reviewOverlay').style.display = 'block';
+      document.getElementById('reviewDialog').style.display = 'block';
+    }
+
+    function closeReviewPopup() {
+      document.getElementById('reviewOverlay').style.display = 'none';
+      document.getElementById('reviewDialog').style.display = 'none';
+      pendingCallsignUpdates = [];
+      pendingCallsignFilterConflicts = false;
+      const content = document.getElementById('reviewContent');
+      if (content) content.innerHTML = '';
     }
 
     async function fetchCallsignDetails(callsign) {
@@ -1011,11 +2126,195 @@
       }
     }
 
+    function renderCallsignReview(updates) {
+      const content = document.getElementById('reviewContent');
+      const visibleUpdates = pendingCallsignFilterConflicts
+        ? updates.filter((item) => item.hasConflict)
+        : updates;
+
+      if (visibleUpdates.length === 0) {
+        content.innerHTML =
+          '<div class="text-sm text-slate-600">Gösterilecek değişiklik bulunamadı.</div>';
+        return;
+      }
+
+      const rowsHtml = visibleUpdates
+        .map(
+          (item, i) => `
+            <tr>
+              <td class="p-2 text-center">
+                <input type="checkbox" class="review-select" data-index="${item.index}" checked>
+              </td>
+              <td class="p-2 text-slate-600">${item.radioId}</td>
+              <td class="p-2 text-slate-500">${item.oldCallsign}</td>
+              <td class="p-2 font-semibold text-slate-900">${item.newCallsign}</td>
+              <td class="p-2 text-xs text-slate-500">${
+                item.hasConflict ? 'Çakışma' : '-'
+              }</td>
+            </tr>
+          `
+        )
+        .join('');
+
+      content.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+          <div class="text-sm text-slate-500">
+            ${visibleUpdates.length} kayıt listeleniyor.
+          </div>
+          <label class="text-sm text-slate-600 flex items-center gap-2">
+            <input type="checkbox" id="filterCallsignConflicts" ${
+              pendingCallsignFilterConflicts ? 'checked' : ''
+            }>
+            Sadece çakışmaları göster
+          </label>
+        </div>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50 text-slate-600">
+              <tr>
+                <th class="p-2 w-12">Seç</th>
+                <th class="p-2 text-left">Radio ID</th>
+                <th class="p-2 text-left">Mevcut</th>
+                <th class="p-2 text-left">Önerilen</th>
+                <th class="p-2 text-left">Durum</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      const filterToggle = document.getElementById('filterCallsignConflicts');
+      if (filterToggle) {
+        filterToggle.onchange = () => {
+          pendingCallsignFilterConflicts = filterToggle.checked;
+          renderCallsignReview(pendingCallsignUpdates);
+        };
+      }
+    }
+
+    async function reviewCallsignUpdates() {
+      if (!table) {
+        showAlert('Önce bir CSV dosyası yükleyin.', 'warning');
+        return;
+      }
+      const content = document.getElementById('reviewContent');
+      content.innerHTML =
+        '<div class="text-center"><div class="animate-spin inline-block w-8 h-8 border-4 border-slate-300 border-t-transparent rounded-full"></div><p class="mt-2 text-sm text-slate-500">RadioID verileri alınıyor...</p></div>';
+      showReviewPopup();
+
+      try {
+        // Fetch all pages
+        let allResults = [];
+        let page = 1;
+        let totalPages = 1;
+
+        do {
+          const response = await fetch(
+            `https://radioid.bugra.workers.dev/api/dmr/user/?country=Turkiye&country=T%C3%BCrkiye&page=${page}`
+          );
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          allResults = allResults.concat(data.results || []);
+          totalPages = data.pages || 1;
+          page++;
+        } while (page <= totalPages);
+
+        const results = allResults;
+        const radioMap = new Map(
+          results
+            .map((user) => {
+              const id = user.radio_id ?? user.id;
+              const callsign = normalizeEmpty(user.callsign).toUpperCase();
+              if (!id || !callsign) return null;
+              return [String(id), callsign];
+            })
+            .filter(Boolean)
+        );
+
+        const tableData = collectTableDataFromInputs();
+        const radioIdGroups = new Map();
+        tableData.forEach((row) => {
+          const radioId = normalizeEmpty(row['Radio ID']);
+          if (!radioId) return;
+          const callsign = normalizeEmpty(row.Callsign).toUpperCase();
+          if (!radioIdGroups.has(radioId)) {
+            radioIdGroups.set(radioId, new Set());
+          }
+          if (callsign) radioIdGroups.get(radioId).add(callsign);
+        });
+        const updates = [];
+        tableData.forEach((row, index) => {
+          const radioId = normalizeEmpty(row['Radio ID']);
+          if (!radioId) return;
+          const newCallsign = radioMap.get(radioId);
+          if (!newCallsign) return;
+          const currentCallsign = normalizeEmpty(row.Callsign).toUpperCase();
+          if (currentCallsign && currentCallsign === newCallsign) return;
+          const group = radioIdGroups.get(radioId);
+          const hasConflict = group && group.size > 1;
+          updates.push({
+            index,
+            radioId,
+            oldCallsign: currentCallsign || '(boş)',
+            newCallsign,
+            hasConflict,
+          });
+        });
+
+        pendingCallsignUpdates = updates;
+        if (updates.length === 0) {
+          content.innerHTML =
+            '<div class="text-sm text-slate-600">Değişiklik bulunamadı.</div>';
+          return;
+        }
+        renderCallsignReview(updates);
+      } catch (error) {
+        console.error('RadioID kontrol hatası:', error);
+        showAlert('RadioID verileri alınamadı: ' + error.message, 'error');
+        closeReviewPopup();
+      }
+    }
+
     // Add event listener for grouping button
     $('#toggleGrouping').on('click', toggleGrouping);
+    $('#reviewCallsigns').on('click', reviewCallsignUpdates);
+
+    document.getElementById('applyCallsignUpdates').onclick = function () {
+      if (!pendingCallsignUpdates.length) {
+        showAlert('Uygulanacak değişiklik bulunamadı.', 'info');
+        return;
+      }
+      const selected = Array.from(document.querySelectorAll('.review-select:checked')).map((el) =>
+        parseInt(el.dataset.index, 10)
+      );
+      if (selected.length === 0) {
+        showAlert('Lütfen en az bir kayıt seçin.', 'warning');
+        return;
+      }
+      const updateMap = new Map(pendingCallsignUpdates.map((item) => [item.index, item]));
+      const data = collectTableDataFromInputs();
+      selected.forEach((idx) => {
+        const update = updateMap.get(idx);
+        if (!update) return;
+        const row = data[update.index];
+        if (!row) return;
+        row.Callsign = update.newCallsign;
+      });
+      const rebuilt = data.map((row, index) => ({ ...row, No: index + 1 }));
+      table.destroy();
+      initializeTable(rebuilt);
+      showAlert(`${selected.length} çağrı işareti güncellendi.`, 'success');
+      closeReviewPopup();
+    };
 
     // Add click handler for popup overlay
     document.getElementById('popupOverlay').onclick = closePopup;
+    document.getElementById('reviewOverlay').onclick = closeReviewPopup;
   </script>
 </body>
 
