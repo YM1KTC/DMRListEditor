@@ -1398,6 +1398,25 @@
       );
     }
 
+    function latinizeTurkish(value) {
+      if (value === null || value === undefined) return '';
+      const map = {
+        Ğ: 'G',
+        ğ: 'g',
+        Ş: 'S',
+        ş: 's',
+        Ü: 'U',
+        ü: 'u',
+        İ: 'I',
+        ı: 'i',
+        Ö: 'O',
+        ö: 'o',
+        Ç: 'C',
+        ç: 'c',
+      };
+      return String(value).replace(/[ĞğŞşÜüİıÖöÇç]/g, (ch) => map[ch] || ch);
+    }
+
     const CITY_MAP = new Map(
       CITY_LIST.map((name) => [simplifyCity(name), titleCaseTr(name)])
     );
@@ -1421,7 +1440,8 @@
       const cleaned = normalizeEmpty(value);
       if (!cleaned) return UNKNOWN_CITY;
       const key = simplifyCity(cleaned);
-      return CITY_MAP.get(key) || normalizeTitle(cleaned);
+      const normalized = CITY_MAP.get(key) || normalizeTitle(cleaned);
+      return latinizeTurkish(normalized);
     }
 
     function isKnownCity(value) {
@@ -1477,6 +1497,7 @@
     // DataTable'ı Başlat
     function initializeTable(data) {
       data = trimFields(data); // Trim fields before initializing the table
+      data = data.map((row) => ({ ...row, City: latinizeTurkish(normalizeEmpty(row.City)) }));
       // Find the highest No. value in existing data
       lastUsedId = Math.max(...data.map((row) => parseInt(row.No) || 0));
 
@@ -1494,19 +1515,21 @@
       const knownKeys = new Set(CITY_LIST.map((name) => simplifyCity(name)));
       const otherCities = cities
         .filter((city) => !knownKeys.has(simplifyCity(city)))
-        .map((city) => normalizeTitle(city))
+        .map((city) => latinizeTurkish(normalizeTitle(city)))
         .sort((a, b) => a.localeCompare(b, 'tr-TR'));
       const standardOptions = standardCities
         .map((entry) => {
-          const label = `${String(entry.id).padStart(2, '0')}-${titleCaseTr(entry.name)}`;
-          const value = titleCaseTr(entry.name);
+          const cityLabel = latinizeTurkish(titleCaseTr(entry.name));
+          const label = `${String(entry.id).padStart(2, '0')}-${cityLabel}`;
+          const value = cityLabel;
           return `<option value="${value}">${label}</option>`;
         })
         .join('');
       const extraOptions = extraCities
         .map((entry) => {
-          const label = `${entry.id}-${titleCaseTr(entry.name)}`;
-          const value = titleCaseTr(entry.name);
+          const cityLabel = latinizeTurkish(titleCaseTr(entry.name));
+          const label = `${entry.id}-${cityLabel}`;
+          const value = cityLabel;
           return `<option value="${value}">${label}</option>`;
         })
         .join('');
@@ -1649,6 +1672,17 @@
         table.draw();
       });
 
+      // Normalize city input to ASCII as the user types
+      $('#csvTable tbody').off('input', 'input.table-input');
+      $('#csvTable tbody').on('input', 'input.table-input', function () {
+        const cellIndex = $(this).closest('td').index();
+        if (cellIndex !== 4) return;
+        const normalized = latinizeTurkish(this.value);
+        if (this.value !== normalized) {
+          this.value = normalized;
+        }
+      });
+
       // Add row selection handling
       $('#csvTable tbody').on('click', 'input.row-select', function (e) {
         e.stopPropagation();
@@ -1720,22 +1754,7 @@
     }
 
     function normalizeCityName(city) {
-      if (!city) return '';
-      const turkishMap = {
-        İ: 'I',
-        ı: 'i',
-        Ş: 'S',
-        ş: 's',
-        Ğ: 'G',
-        ğ: 'g',
-        Ü: 'U',
-        ü: 'u',
-        Ç: 'C',
-        ç: 'c',
-        Ö: 'O',
-        ö: 'o',
-      };
-      return city.replace(/[İıŞşĞğÜüÇçÖö]/g, (match) => turkishMap[match] || match);
+      return latinizeTurkish(city);
     }
 
     // DataTable'ı CSV'ye Dışa Aktar
