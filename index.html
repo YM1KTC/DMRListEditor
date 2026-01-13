@@ -953,6 +953,14 @@
               </svg>
               Mükerrerleri Birleştir
             </button>
+            <button id="showDuplicateCallsigns" class="btn btn-secondary w-full">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              Mükerrerleri Göster
+            </button>
           </div>
         </div>
 
@@ -1284,6 +1292,10 @@
     }
     let table;
     let filterNonAscii = false;
+    let showDuplicateCallsigns = false;
+    let duplicateCallsigns = new Set();
+    let duplicateRadioIds = new Set();
+    let duplicateCallsignsDirty = true;
     let lastUsedId = 0; // Track the last used ID
     let isGrouped = false; // Track grouping state
     let selectedCityFilter = '';
@@ -1462,6 +1474,39 @@
       };
     }
 
+    function refreshDuplicateCallsigns() {
+      if (!table) {
+        duplicateCallsigns = new Set();
+        duplicateRadioIds = new Set();
+        duplicateCallsignsDirty = false;
+        return;
+      }
+      const data = collectTableDataFromInputs();
+      const callsignCounts = new Map();
+      const radioIdCounts = new Map();
+      data.forEach((row) => {
+        const callsignKey = normalizeEmpty(row.Callsign).toUpperCase();
+        if (callsignKey) {
+          callsignCounts.set(callsignKey, (callsignCounts.get(callsignKey) || 0) + 1);
+        }
+        const radioIdKey = normalizeEmpty(row['Radio ID']);
+        if (radioIdKey) {
+          radioIdCounts.set(radioIdKey, (radioIdCounts.get(radioIdKey) || 0) + 1);
+        }
+      });
+      duplicateCallsigns = new Set(
+        Array.from(callsignCounts.entries())
+          .filter((entry) => entry[1] > 1)
+          .map((entry) => entry[0])
+      );
+      duplicateRadioIds = new Set(
+        Array.from(radioIdCounts.entries())
+          .filter((entry) => entry[1] > 1)
+          .map((entry) => entry[0])
+      );
+      duplicateCallsignsDirty = false;
+    }
+
     // Function to trim fields over 16 characters
     function trimFields(data) {
       return data.map((row) => {
@@ -1498,6 +1543,7 @@
     function initializeTable(data) {
       data = trimFields(data); // Trim fields before initializing the table
       data = data.map((row) => ({ ...row, City: latinizeTurkish(normalizeEmpty(row.City)) }));
+      duplicateCallsignsDirty = true;
       // Find the highest No. value in existing data
       lastUsedId = Math.max(...data.map((row) => parseInt(row.No) || 0));
 
@@ -1680,6 +1726,17 @@
         const normalized = latinizeTurkish(this.value);
         if (this.value !== normalized) {
           this.value = normalized;
+        }
+      });
+
+      // Track callsign and Radio ID edits for duplicate filtering
+      $('#csvTable tbody').off('change', 'input.table-input');
+      $('#csvTable tbody').on('change', 'input.table-input', function () {
+        const cellIndex = $(this).closest('td').index();
+        if (cellIndex !== 1 && cellIndex !== 2) return;
+        duplicateCallsignsDirty = true;
+        if (showDuplicateCallsigns) {
+          table.draw(false);
         }
       });
 
@@ -1932,10 +1989,32 @@
       showAlert(`Bozuk karakter filtresi ${filterNonAscii ? 'açıldı' : 'kapandı'}.`, 'info');
     });
 
+    // Mükerrerleri Göster Aç/Kapat
+    $('#showDuplicateCallsigns').on('click', function () {
+      showDuplicateCallsigns = !showDuplicateCallsigns;
+      duplicateCallsignsDirty = true;
+      $(this).html(`Mükerrerleri Göster: ${showDuplicateCallsigns ? '✅' : '❌'}`);
+      table.draw();
+      showAlert(
+        `Mükerrer filtre ${showDuplicateCallsigns ? 'açıldı' : 'kapandı'}.`,
+        'info'
+      );
+    });
+
     // ASCII Olmayan Karakterler için Özel Arama Fonksiyonu
     $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
       if (!filterNonAscii) return true;
       return data.some((value) => /[^\x00-\x7F]/.test(value));
+    });
+
+    // Mükerrer çağrı işaretlerini filtrele
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+      if (!showDuplicateCallsigns) return true;
+      if (duplicateCallsignsDirty) refreshDuplicateCallsigns();
+      const callsign = normalizeEmpty(data[2]).toUpperCase();
+      const radioId = normalizeEmpty(data[1]);
+      if (!callsign && !radioId) return false;
+      return duplicateCallsigns.has(callsign) || duplicateRadioIds.has(radioId);
     });
 
     // Şehir filtresi için özel arama
@@ -2062,6 +2141,7 @@
         'Call Alert': 'None',
       };
 
+      duplicateCallsignsDirty = true;
       table.row.add(trimFields([newRow])[0]).draw(); // Trim fields
     }
 
@@ -2075,6 +2155,7 @@
 
       if (confirm(`${selectedRows.count()} satır silinecek. Emin misiniz?`)) {
         selectedRows.remove().draw();
+        duplicateCallsignsDirty = true;
         showAlert(`${selectedRows.count()} satır silindi.`, 'success');
       }
     }
