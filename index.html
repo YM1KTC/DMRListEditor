@@ -55,6 +55,7 @@
       font-family: "Sora", system-ui, sans-serif;
       color: var(--ink);
       background: var(--bg);
+      -webkit-text-size-adjust: 100%;
     }
 
     h1,
@@ -270,6 +271,7 @@
       font-weight: 600;
       transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
       box-shadow: 0 12px 24px rgba(20, 18, 13, 0.12);
+      touch-action: manipulation;
     }
 
     .btn:active {
@@ -333,6 +335,7 @@
     table.dataTable {
       border-collapse: collapse !important;
       font-size: 0.9rem;
+      width: 100% !important;
     }
 
     table.dataTable thead th {
@@ -363,6 +366,10 @@
       border-radius: 10px;
       padding: 6px 10px;
       width: 100%;
+    }
+
+    .table-scroll {
+      -webkit-overflow-scrolling: touch;
     }
 
     table.dataTable input[type="text"]:focus {
@@ -616,6 +623,7 @@
       transition: all 0.2s ease;
       cursor: pointer;
       font-size: 14px;
+      touch-action: manipulation;
     }
 
     .action-btn:hover {
@@ -705,9 +713,95 @@
         padding: 24px 16px 60px;
       }
 
+      .hero-card {
+        padding: 20px;
+      }
+
+      .hero-subtitle {
+        font-size: 0.95rem;
+      }
+
+      .hero-badges {
+        gap: 6px;
+      }
+
+      .badge {
+        font-size: 0.65rem;
+        letter-spacing: 0.06em;
+        padding: 5px 10px;
+      }
+
+      .step-card {
+        align-items: flex-start;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
       .table-header {
         flex-direction: column;
         align-items: flex-start;
+        padding: 16px;
+      }
+
+      .table-header h3 {
+        font-size: 1.1rem;
+      }
+
+      .btn {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+      }
+
+      .file-input,
+      .input,
+      .select {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+      }
+
+      #csvTable_length,
+      #csvTable_filter {
+        width: 100%;
+      }
+
+      #csvTable_length label,
+      #csvTable_filter label {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      #csvTable_filter input,
+      #csvTable_length select {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+
+      .dataTables_paginate {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      table.dataTable {
+        min-width: 720px;
+      }
+
+      .action-btn {
+        width: 38px;
+        height: 38px;
+      }
+
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+      }
+
+      .popup-dialog {
+        width: 94%;
+        max-height: 92vh;
+        border-radius: 16px;
       }
     }
   </style>
@@ -951,7 +1045,7 @@
               </div>
             </div>
 
-            <div class="overflow-x-auto rounded-lg border border-slate-200">
+            <div class="table-scroll overflow-x-auto rounded-lg border border-slate-200">
               <table id="csvTable" class="stripe hover w-full"></table>
             </div>
 
