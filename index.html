@@ -1719,6 +1719,25 @@
         .map((row) => trimFields([row])[0]); // Trim fields
     }
 
+    function normalizeCityName(city) {
+      if (!city) return '';
+      const turkishMap = {
+        İ: 'I',
+        ı: 'i',
+        Ş: 'S',
+        ş: 's',
+        Ğ: 'G',
+        ğ: 'g',
+        Ü: 'U',
+        ü: 'u',
+        Ç: 'C',
+        ç: 'c',
+        Ö: 'O',
+        ö: 'o',
+      };
+      return city.replace(/[İıŞşĞğÜüÇçÖö]/g, (match) => turkishMap[match] || match);
+    }
+
     // DataTable'ı CSV'ye Dışa Aktar
     function exportCSV() {
       const data = table
@@ -1733,7 +1752,7 @@
             'Radio ID': inputs[0].value,
             Callsign: inputs[1].value,
             Name: inputs[2].value,
-            City: inputs[3].value,
+            City: normalizeCityName(inputs[3].value),
             State: '',
             Country: '',
             Remarks: '',
@@ -1831,7 +1850,7 @@
             CallSign: inputs[1].value,
             Name: inputs[2].value,
             NickName: '', // Changed from inputs[1].value to empty string
-            City: inputs[3].value,
+            City: normalizeCityName(inputs[3].value),
             State: '',
             Country: '',
           };
